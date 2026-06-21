@@ -1,50 +1,64 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ブログ - ゆゆゆのホームページ</title>
+<title>ブログ</title>
 
 <link rel="stylesheet" href="/style/style.css">
 <link rel="stylesheet" href="/style/blog.css">
-
-<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div id="header"></div>
-
 <div class="content">
 
-  <h1>ブログ</h1>
+<h1>ブログ</h1>
 
-  <p class="blog-description">
-    更新記録や日記などを掲載しています。
-  </p>
+<input id="search" placeholder="検索" />
 
-  <div class="blog-list">
-
-```
-<a class="blog-card" href="/blog/2026-06-21.html">
-  <span class="date">2026/06/21</span>
-  <h2>サイトを再構築しました</h2>
-  <p>デザインやフォルダ構成を見直しました。</p>
-</a>
-```
-
-  </div>
+<div id="list"></div>
 
 </div>
 
-<div id="footer"></div>
+<script src="/blog/posts.js"></script>
 
-<script src="/js/script.js"></script>
+<script>
+function render(data){
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "blog-entry";
+
+    el.innerHTML = `
+      <h2><a href="${p.url}">${p.title}</a></h2>
+      <p class="date">${p.date}</p>
+      <p>${p.desc}</p>
+      <p class="tags">#${p.tags.join(" #")}</p>
+    `;
+
+    list.appendChild(el);
+  });
+}
+
+posts.sort((a,b)=>b.date.localeCompare(a.date));
+render(posts);
+
+// 検索
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value;
+
+  const filtered = posts.filter(p =>
+    p.title.includes(q) ||
+    p.desc.includes(q) ||
+    p.tags.join(" ").includes(q)
+  );
+
+  render(filtered);
+});
+</script>
 
 </body>
 </html>
