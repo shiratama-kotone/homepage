@@ -71,3 +71,64 @@ footer p {
 margin: 0;
 color: #666;
 }
+
+/* ===== ダークモード変数 ===== */
+:root {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #222;
+  --border: #ddd;
+  --link: #2563eb;
+}
+
+/* ダークモード */
+[data-theme="dark"] {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e5e5e5;
+  --border: #333;
+  --link: #8ab4f8;
+}
+
+/* ===== 全体反映 ===== */
+body {
+  margin: 0;
+  font-family: "M PLUS 1p", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+#header {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+#footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+section {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* テキスト系 */
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+footer p {
+  margin: 0;
+  color: var(--text);
+  opacity: 0.7;
+}
