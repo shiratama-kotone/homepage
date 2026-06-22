@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "M PLUS 1p";
+  src: url("/assets/MPLUS1p-Medium.ttf") format("truetype");
+}
+
 :root {
   --bg: #f7f7fb;
   --card: #ffffff;
