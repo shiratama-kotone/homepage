@@ -5,18 +5,15 @@ let lastHTML = "";
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("srcBtn");
   const copy = document.getElementById("srcCopy");
-  const output = document.getElementById("srcOutput");
 
   if (btn) {
     btn.addEventListener("click", async () => {
       const url = document.getElementById("srcUrl").value.trim();
 
       if (!url) {
-        output.textContent = "URLを入力してください";
+        document.getElementById("srcOutput").textContent = "URLを入力してください";
         return;
       }
-
-      output.textContent = "取得中...";
 
       try {
         const res = await fetch(api + encodeURIComponent(url));
@@ -29,10 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         lastHTML = html;
 
-        output.innerHTML = prettyHTML(html);
+        document.getElementById("srcOutput").innerHTML =
+          prettyHTML(html);
 
       } catch (e) {
-        output.textContent = `エラー: ${e.message}`;
+        document.getElementById("srcOutput").textContent =
+          "取得失敗: " + e.message;
       }
     });
   }
@@ -51,64 +50,66 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+/* ===== HTML整形 ===== */
 function prettyHTML(html) {
   html = html.replace(/>\s*</g, "><");
 
   const tokens = html.split(/(<[^>]+>)/g).filter(Boolean);
 
   let indent = 0;
-  let inScript = false;
-  let inStyle = false;
-
   const indentSize = "  ";
 
-  return tokens.map(token => {
+  const lines = [];
+
+  for (const token of tokens) {
 
     if (/^<\/.+>/.test(token)) {
       indent = Math.max(indent - 1, 0);
     }
 
-    let line = indentSize.repeat(indent) + escapeHTML(token);
-
-    if (/<script\b/i.test(token)) inScript = true;
-    if (/<style\b/i.test(token)) inStyle = true;
-
-    if (/<\/script>/i.test(token)) inScript = false;
-    if (/<\/style>/i.test(token)) inStyle = false;
+    lines.push(
+      indentSize.repeat(indent) + highlightToken(token)
+    );
 
     if (
-      !inScript &&
-      !inStyle &&
-      /^<[^!\/][^>]*[^\/]>$/.test(token)
+      /^<[^!/][^>]*[^/]>$/.test(token) &&
+      !/^<(meta|link|img|br|hr|input)/i.test(token)
     ) {
       indent++;
     }
+  }
 
-    return line;
-
-  }).join("\n");
+  return lines.join("\n");
 }
 
-function escapeHTML(token) {
-  let t = token
+/* ===== ハイライト ===== */
+function highlightToken(token) {
+
+  if (!token.startsWith("<")) {
+    return escapeHTML(token);
+  }
+
+  let escaped = token
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 
-  t = t.replace(
-    /(&lt;\/?)([a-zA-Z0-9-]+)/g,
+  escaped = escaped.replace(
+    /^(&lt;\/?)([a-zA-Z0-9-]+)/,
     '$1<span class="tag">$2</span>'
   );
 
-  t = t.replace(
-    /([a-zA-Z-:]+)=/g,
-    '<span class="attr">$1</span>='
+  escaped = escaped.replace(
+    /([a-zA-Z-:]+)=(".*?"|'.*?')/g,
+    '<span class="attr">$1</span>=<span class="str">$2</span>'
   );
 
-  t = t.replace(
-    /"([^"]*)"/g,
-    '<span class="str">"$1"</span>'
-  );
+  return escaped;
+}
 
-  return t;
+function escapeHTML(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
