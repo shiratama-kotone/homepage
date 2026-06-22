@@ -72,6 +72,131 @@ margin: 0;
 color: #666;
 }
 
+#srcOutput {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  overflow: auto;
+  white-space: pre;
+  font-family: monospace;
+}
+
+#srcUrl {
+  padding: 6px;
+  width: 60%;
+}
+
+#srcBtn, #srcCopy {
+  padding: 6px 10px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tool-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.tool-bar input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px;
+}
+
+.tool-bar button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#srcOutput {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  overflow: auto;
+  white-space: pre;
+  font-family: monospace;
+  max-height: 400px;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.tool-card {
+  display: block;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+
+.tool-card:hover {
+  transform: translateY(-3px);
+}
+
+.tool-card h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.tool-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+#search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter button {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.tool-card {
+  display: block;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+}
+
+.tag {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
 /* ===== ダークモード変数 ===== */
 :root {
   --bg: #f5f5f5;

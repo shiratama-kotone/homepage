@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ツール一覧</title>
+
+<link rel="stylesheet" href="/style/style.css">
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+
+<h1>ツール一覧</h1>
+
+<input id="search" placeholder="検索">
+
+<div class="filter">
+  <button onclick="filterCategory('all')">全て</button>
+  <button onclick="filterCategory('解析')">解析</button>
+  <button onclick="filterCategory('便利')">便利</button>
+</div>
+
+<div id="list"></div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+<script src="/script/tools.js"></script>
+
+</body>
+</html>
