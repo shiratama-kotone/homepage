@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/* ===== HTML整形 ===== */
 function prettyHTML(html) {
   html = html.replace(/>\s*</g, "><");
 
@@ -82,29 +81,37 @@ function prettyHTML(html) {
   return lines.join("\n");
 }
 
-/* ===== ハイライト ===== */
 function highlightToken(token) {
 
   if (!token.startsWith("<")) {
     return escapeHTML(token);
   }
 
-  let escaped = token
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  const match = token.match(/^<(\/?)([a-zA-Z0-9-]+)(.*?)>$/);
 
-  escaped = escaped.replace(
-    /^(&lt;\/?)([a-zA-Z0-9-]+)/,
-    '$1<span class="html-tag">$2</span>'
-  );
+  if (!match) {
+    return escapeHTML(token);
+  }
 
-  escaped = escaped.replace(
+  const slash = match[1];
+  const tagName = match[2];
+  const attrs = match[3];
+
+  let result =
+    "&lt;" +
+    slash +
+    '<span class="html-tag">' +
+    tagName +
+    "</span>";
+
+  result += attrs.replace(
     /([a-zA-Z-:]+)=(".*?"|'.*?')/g,
     '<span class="attr">$1</span>=<span class="str">$2</span>'
   );
 
-  return escaped;
+  result += "&gt;";
+
+  return result;
 }
 
 function escapeHTML(text) {
