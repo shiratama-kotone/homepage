@@ -1,7 +1,6 @@
 document.getElementById("header").innerHTML = `
 <header>
   <h2>ゆゆゆのホームページ</h2>
-  <button id="themeBtn">テーマ切替</button>
 </header>
 `;
 
