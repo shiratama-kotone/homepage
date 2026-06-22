@@ -4,5 +4,11 @@
     "desc": "サイトのHTMLを取得して表示",
     "category": "解析",
     "url": "/tools/html-source.html"
+  },
+  {
+    "title":"HTML試しツール",
+    "desc":"HTMLを書いて試す",
+    "category": "解析",
+    "url":"/tools/html-test.htmll"
   }
 ]
