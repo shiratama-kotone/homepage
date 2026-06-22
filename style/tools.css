@@ -47,3 +47,7 @@
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
+
+.attr { color: #fbbf24; }
+.str { color: #34d399; }
+.html-tag { color: #60a5fa; }

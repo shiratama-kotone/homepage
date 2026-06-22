@@ -96,7 +96,7 @@ function highlightToken(token) {
 
   escaped = escaped.replace(
     /^(&lt;\/?)([a-zA-Z0-9-]+)/,
-    '$1<span class="tag">$2</span>'
+    '$1<span class="html-tag">$2</span>'
   );
 
   escaped = escaped.replace(
