@@ -1,5 +1,5 @@
 .blog-entry {
-  background: #fff;
+  background: var(--card);
   padding: 15px;
   margin-bottom: 15px;
   border-radius: 10px;
@@ -10,29 +10,25 @@
 }
 
 .blog-entry a {
-  text-decoration: none;
   color: inherit;
-}
-
-.blog-entry a:hover {
-  text-decoration: underline;
 }
 
 .date {
   font-size: 0.85rem;
-  color: #777;
+  opacity: 0.6;
 }
 
 .tags {
   font-size: 0.8rem;
-  color: #999;
+  opacity: 0.6;
   margin-top: 5px;
 }
 
+/* 検索（ブログ専用UIとして扱う） */
 #search {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
 }
