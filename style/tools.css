@@ -50,4 +50,11 @@
 
 .attr { color: #fbbf24; }
 .str { color: #34d399; }
-.html-tag { color: #60a5fa; }
+.html-tag {
+  display: inline !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  font-size: inherit !important;
+  opacity: 1 !important;
+}
