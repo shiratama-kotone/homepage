@@ -277,7 +277,7 @@ switch (a.course.toLowerCase()) {
         E = 4;
         break;
 }
-			}
+		
 			return {
 				course: E,
 				headers: a,
