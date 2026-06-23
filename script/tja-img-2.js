@@ -429,11 +429,11 @@ switch (a.course.toLowerCase()) {
 					b(p, 0, w + k, S, 32, "#000"), b(p, 0, w + k + 2, S, 28, "#fff"), b(p,
 						0, w + k + 4, S, 24, "#999")
 				}
-				m(p, 8, 8, e.headers.title, "bold 28px sans-serif", "#000", "top",
+				m(p, 8, 8, e.headers.title, '28px "Pixel 3x5"', "#000", "top",
 					"left");
 				m(p, 8, 40, ["かんたん", "ふつう", "むずかしい", "おに", "おに(裏)"][a.course] + " " + "★".repeat(
 					a.headers.level) + "☆".repeat(Math.max([5, 7, 8, 10, 10][a.course] - a.headers
-					.level, 0)), "bold 20px sans-serif", "#000", "top", "left");
+					.level, 0)), '20px "Pixel 3x5"', "#000", "top", "left");
 				for (var P = !1, M = 1, N = 0; N < n.length; N++)
 					for (var D = n[N].measures, j = 0, G = 0; G < D.length; G++) {
 						var U = D[G],

@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Pixel 3x5";
+  src: url("/assets/pzim3x5b.ttf") format("truetype");
+}
+
 .tool-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
