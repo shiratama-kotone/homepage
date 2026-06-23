@@ -412,11 +412,24 @@ switch (a.course.toLowerCase()) {
 				beats: s,
 				measures: o
 			});
-			var f = 24 + 48 * r + O,
-				u = 64 + (x + 16) * n.length + 8,
-				d = document.createElement("canvas");
-			d.width = f, d.height = u, document.body.appendChild(d);
-			var p = d.getContext("2d");
+var f = 24 + 48 * r + O,
+    u = 64 + (x + 16) * n.length + 8,
+    d = document.createElement("canvas");
+
+var scale = 4;
+
+d.width = f * scale;
+d.height = u * scale;
+
+d.style.width = f + "px";
+d.style.height = u + "px";
+
+document.body.appendChild(d);
+
+var p = d.getContext("2d");
+
+p.scale(scale, scale);
+p.imageSmoothingEnabled = false;
 			try {
 				b(p, 0, 0, f, u, "#cccccc");
 				for (var v = 0; v < n.length; v++) {
@@ -431,7 +444,7 @@ switch (a.course.toLowerCase()) {
 				}
 				m(p, 8, 8, e.headers.title, '28px "Pixel 3x5"', "#000", "top",
 					"left");
-				m(p, 8, 40, ["かんたん", "ふつう", "むずかしい", "おに", "おに(裏)"][a.course] + " " + "★".repeat(
+				m(p, 8, 40, ["かんたん", "ふつう", "むずかしい", "おに", "おに（裏）"][a.course] + " " + "★".repeat(
 					a.headers.level) + "☆".repeat(Math.max([5, 7, 8, 10, 10][a.course] - a.headers
 					.level, 0)), '20px "Pixel 3x5"', "#000", "top", "left");
 				for (var P = !1, M = 1, N = 0; N < n.length; N++)
