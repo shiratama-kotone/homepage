@@ -212,3 +212,24 @@
 .page-statistics .stat-graph .grid line {
   stroke: #777;
 }
+
+/* 未読メッセージ */
+.unread {
+  background: #fff3cd;
+}
+
+/* 既読ライン */
+.read-marker {
+  text-align: center;
+  font-size: 12px;
+  color: gray;
+  margin: 10px 0;
+}
+
+/* メンション強調 */
+.mention {
+  background: #ffe0f0;
+  color: #d1006f;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
