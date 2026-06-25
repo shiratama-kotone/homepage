@@ -233,3 +233,20 @@
   padding: 2px 4px;
   border-radius: 4px;
 }
+
+#tja-input {
+  width: 100%;
+  min-height: 500px; /* 大きめ */
+  padding: 12px;
+  box-sizing: border-box;
+
+  font-family: monospace;
+  font-size: 18px; /* 文字大きめ */
+  line-height: 1.6;
+
+  resize: both; /* 縦横サイズ変更可能 */
+  overflow: auto;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
