@@ -16,5 +16,11 @@
     "desc":"TJAを画像化する",
     "category":"太鼓の達人",
     "url":"/tools/tja-img.html"
+  },
+  {
+    "title":"ページのスクリーンショット取得",
+    "desc":"いろいろなページのスクリーンショットを取得",
+    "category":"解析",
+    "url":"/tools/page-screenshot.html"
   }
 ]

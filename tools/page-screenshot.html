@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ページスクリーンショット</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+  <h1>ページスクリーンショット</h1>
+
+  <input
+    type="url"
+    id="urlInput"
+    placeholder="https://example.com"
+    style="width:100%;padding:12px;"
+  >
+
+  <br><br>
+
+  <button id="captureBtn">撮影</button>
+
+  <br><br>
+
+  <img
+    id="resultImage"
+    alt="スクリーンショット"
+    style="max-width:100%;display:none;"
+  >
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+<script src="/script/tools/page-screenshot.js"></script>
+</body>
+</html>
