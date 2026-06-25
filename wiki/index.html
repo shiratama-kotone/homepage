@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ゆゆゆWiki</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+
+<div class="wiki-hero">
+<h1>ゆゆゆWiki</h1>
+<p>いろいろ情報をまとめたWikiです。</p>
+
+<form id="wiki-search">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="ページ名・説明・タグを検索"
+  >
+  <button type="submit">検索</button>
+</form>
+</div>
+
+<section>
+<h2>お知らせ</h2>
+<ul>
+<li>現在、お知らせはありません。</li>
+</ul>
+</section>
+
+<section>
+<h2>最近更新されたページ</h2>
+<ul>
+<li><a href="#"></a></li>
+<li><a href="#"></a></li>
+<li><a href="#"></a></li>
+<li><a href="#"></a></li>
+<li><a href="#"></a></li>
+</ul>
+</section>
+
+<section>
+<h2>カテゴリ</h2>
+<ul>
+<li><a href="#">人物</a></li>
+</ul>
+</section>
+
+<section>
+<h2>人気ページ</h2>
+<ul>
+<li><a href="#">ゆゆゆ</a></li>
+</ul>
+</section>
+
+<section>
+<h2>Wiki情報</h2>
+<ul>
+<li>総ページ数: 0</li>
+<li>総編集回数: 0</li>
+<li>最終更新: ----/--/--</li>
+</ul>
+</section>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+<script>
+    document.getElementById("wiki-search")?.addEventListener("submit", e => {
+  e.preventDefault();
+
+  var q = document.getElementById("searchInput").value.trim();
+
+  if (!q) return;
+
+  location.href =
+    "/wiki/search.html?q=" +
+    encodeURIComponent(q);
+});
+</script>
+</body>
+</html>
