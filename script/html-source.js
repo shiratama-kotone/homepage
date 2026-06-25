@@ -1,4 +1,4 @@
-const api = "https://html-source.yuzuki-m-1226.workers.dev/?url=";
+const api = "https://html-source.shiratama-kotone.workers.dev/?url=";
 
 let lastHTML = "";
 
