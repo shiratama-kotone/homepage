@@ -1,0 +1,48 @@
+.infobox{
+    float:right;
+    width:320px;
+    margin:0 0 20px 20px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+}
+
+.infobox img{
+    width:100%;
+    display:block;
+}
+
+.infobox table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.infobox th,
+.infobox td{
+    padding:10px;
+    border-top:1px solid #ddd;
+    text-align:left;
+    vertical-align:top;
+}
+
+.infobox th[colspan]{
+    text-align:center;
+    font-size:20px;
+}
+
+.infobox th:not([colspan]){
+    width:35%;
+    background:#f5f5f5;
+    font-weight:bold;
+}
+
+@media(max-width:900px){
+
+.infobox{
+    float:none;
+    width:100%;
+    margin:0 0 20px;
+}
+
+}

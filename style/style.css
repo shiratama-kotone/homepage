@@ -24,6 +24,11 @@
 }
 
 /* ===== ベース ===== */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: "M PLUS 1p", sans-serif;
