@@ -84,9 +84,9 @@ function downloadPNG() {
   for (var y = 0; y < h; y++) {
     for (var x = 0; x < w; x++) {
       if (maze[y][x] === 1) {
-        ectx.fillStyle = "#ffffff";
-      } else {
         ectx.fillStyle = "#000000";
+      } else {
+        ectx.fillStyle = "#ffffff";
       }
       ectx.fillRect(x * scale, y * scale, scale, scale);
     }
