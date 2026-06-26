@@ -2,7 +2,7 @@ var pageList = [];
 var pageMap = {};
 
 async function loadPages() {
-  var res = await fetch("/pages.json");
+  var res = await fetch("/wiki/pages.json");
   var pages = await res.json();
 
   pages.forEach(function(page) {
