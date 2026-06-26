@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>迷路ジェネレーター</title>
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+</head>
+<body>
+<div id="header"></div>
+
+<div class="content">
+
+  <h1>迷路ジェネレーター</h1>
+
+  <div class="panel">
+    <label>横サイズ</label>
+    <input id="w" type="number" value="21" min="5" max="101" step="2">
+
+    <label>縦サイズ</label>
+    <input id="h" type="number" value="21" min="5" max="101" step="2">
+
+    <button onclick="generateMaze()">生成</button>
+    <button onclick="downloadPNG()">PNGダウンロード</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+<script src="/script/tools/maze-gen.js"></script>
+</body>
+</html>
