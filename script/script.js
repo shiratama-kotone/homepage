@@ -6,7 +6,20 @@ document.getElementById("header").innerHTML = `
 
 document.getElementById("footer").innerHTML = `
 <footer>
+
+  <section>
+    <ul>
+      <li><a href="https://yuyuyu-made-bbs.onrender.com/">掲示板</a></li>
+      <li><a href="/blog/">ブログ</a></li>
+      <li><a href="/tools/">ツール</a></li>
+      <li><a href="/links/">リンク集</a></li>
+      <li><a href="/wiki/">Wiki</a></li>
+      <li><a href="/contact/">お問い合わせ</a></li>
+    </ul>
+  </section>
+
   <p>© ゆゆゆ</p>
+
 </footer>
 `;
 

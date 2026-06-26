@@ -149,6 +149,68 @@ a:hover {
   text-decoration: underline;
 }
 
+/* ===== form（共通）===== */
+form{
+    max-width:700px;
+    margin:30px auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+form label{
+    font-weight:700;
+}
+
+form input,
+form select,
+form textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:12px 14px;
+    font:inherit;
+    color:inherit;
+    background:var(--bg2, #fff);
+    border:1px solid #ccc;
+    border-radius:10px;
+    transition:.2s;
+}
+
+form textarea{
+    resize:vertical;
+    min-height:220px;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus{
+    outline:none;
+    border-color:#9370db;
+    box-shadow:0 0 0 3px rgba(147,112,219,.2);
+}
+
+form button{
+    width:fit-content;
+    padding:12px 28px;
+    font:inherit;
+    font-weight:700;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#9370db;
+    color:#fff;
+    transition:.2s;
+}
+
+form button:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.05);
+}
+
+form button:active{
+    transform:translateY(0);
+} 
+
 /* ===== 補助テキスト ===== */
 .date,
 .tags,

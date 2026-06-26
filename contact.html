@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>お問い合わせ</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+
+<h1>お問い合わせ</h1>
+
+<p>
+ご意見・ご要望・不具合報告などはこちらから送信できます。<br>
+返信が必要な場合はメールアドレスをご記入ください。
+</p>
+
+<form name="contact" method="POST" netlify>
+
+<input type="hidden" name="form-name" value="contact">
+
+<label for="name">お名前</label>
+<input
+type="text"
+id="name"
+name="name"
+placeholder="お名前"
+required
+>
+
+<label for="email">メールアドレス</label>
+<input
+type="email"
+id="email"
+name="email"
+placeholder="返信が必要な場合のみ"
+>
+
+<label for="category">お問い合わせ種別</label>
+<select id="category" name="category">
+<option>ご意見・ご感想</option>
+<option>不具合報告</option>
+<option>ご要望</option>
+<option>削除依頼</option>
+<option>その他</option>
+</select>
+
+<label for="message">内容</label>
+<textarea
+id="message"
+name="message"
+rows="7"
+placeholder="内容をご記入ください。"
+required
+></textarea>
+
+<button type="submit">
+送信する
+</button>
+
+</form>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+
+</body>
+</html>
