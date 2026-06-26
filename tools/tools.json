@@ -22,5 +22,11 @@
     "desc":"いろいろなページのスクリーンショットを取得",
     "category":"解析",
     "url":"/tools/program/page-screenshot.html"
+  },
+  {
+    "title":"迷路ジェネレーター",
+    "desc":"迷路を作る",
+    "category":"便利",
+    "url":"/tools/useful/maze-gen.html"
   }
 ]
