@@ -4,5 +4,11 @@
     "description": "このサイトの管理人",
     "tags": ["人物", "管理人"],
     "url": "/wiki/character/yuyuyu.html"
+  },
+   {
+    "title": "CHUNITHM",
+    "description": "ぼくのかんがえた さいきょうの おんがくげーむ",
+    "tags": ["音ゲー", "SEGA"],
+    "url": "/wiki/game/ac/music/chunithm.html"
   }
 ]
