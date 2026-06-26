@@ -28,5 +28,11 @@
     "desc":"迷路を作る",
     "category":"便利",
     "url":"/tools/useful/maze-gen.html"
+  },
+  {
+    "title":"midi再生",
+    "desc":"midiを再生する",
+    "category":"便利",
+    "url":"/tools/useful/midi-play.html"
   }
 ]

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MIDI Player</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="stylesheet" hres="/style/tools.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+
+<script src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2/build/Midi.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+
+<div class="midi-player">
+
+<h1>MIDI Player</h1>
+
+<label class="midi-upload">
+<input
+type="file"
+id="midi-file"
+accept=".mid,.midi">
+<span>MIDIファイルを選択</span>
+</label>
+
+<div class="midi-buttons">
+
+<button id="midi-play" disabled>
+▶ 再生
+</button>
+
+<button id="midi-pause" disabled>
+⏸ 一時停止
+</button>
+
+<button id="midi-stop" disabled>
+■ 停止
+</button>
+
+</div>
+
+<div class="midi-seek">
+
+<span id="midi-current-time">
+0:00
+</span>
+
+<input
+type="range"
+id="midi-seek-bar"
+min="0"
+max="100"
+value="0"
+step="0.01">
+
+<span id="midi-total-time">
+0:00
+</span>
+
+</div>
+
+<div class="midi-toolbar">
+
+<label>
+
+ズーム
+
+<input
+type="range"
+id="midi-zoom"
+min="0.5"
+max="5"
+step="0.1"
+value="1">
+
+</label>
+
+<label>
+
+速度
+
+<input
+type="range"
+id="midi-speed"
+min="0.5"
+max="2"
+step="0.05"
+value="1">
+
+</label>
+
+</div>
+
+<div id="midi-roll-container">
+
+<canvas id="midi-piano-keys"></canvas>
+
+<canvas id="midi-piano-roll"></canvas>
+
+</div>
+
+<div class="midi-buttons">
+
+<button
+id="midi-convert"
+disabled>
+
+MP3へ変換
+
+</button>
+
+<a
+id="midi-download"
+download="music.mp3"
+style="display:none;">
+
+<button>
+
+MP3をダウンロード
+
+</button>
+
+</a>
+
+</div>
+
+<div id="midi-progress"></div>
+
+<table class="midi-info">
+
+<tr>
+<th>曲名</th>
+<td id="midi-title">-</td>
+</tr>
+
+<tr>
+<th>テンポ</th>
+<td id="midi-tempo">-</td>
+</tr>
+
+<tr>
+<th>拍子</th>
+<td id="midi-time-signature">-</td>
+</tr>
+
+<tr>
+<th>長さ</th>
+<td id="midi-length">-</td>
+</tr>
+
+<tr>
+<th>トラック数</th>
+<td id="midi-track-count">-</td>
+</tr>
+
+<tr>
+<th>ノート数</th>
+<td id="midi-note-count">-</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+
+</body>
+</html>

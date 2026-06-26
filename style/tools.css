@@ -250,3 +250,63 @@
   border: 1px solid #ccc;
   border-radius: 8px;
 }
+
+.midi-player{
+    max-width:1400px;
+    margin:auto;
+}
+
+.midi-upload{
+    display:block;
+    padding:32px;
+    border:2px dashed var(--main);
+    border-radius:12px;
+    text-align:center;
+    cursor:pointer;
+}
+
+.midi-upload input{
+    display:none;
+}
+
+.midi-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    flex-wrap:wrap;
+}
+
+.midi-seek{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:16px;
+}
+
+.midi-toolbar{
+    display:flex;
+    gap:24px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+}
+
+#midi-roll-container{
+    position:relative;
+    height:600px;
+    overflow:auto;
+    border:1px solid var(--border);
+}
+
+#midi-piano-keys{
+    position:absolute;
+    left:0;
+    top:0;
+    z-index:2;
+}
+
+#midi-piano-roll{
+    position:absolute;
+    left:80px;
+    top:0;
+    z-index:1;
+}
