@@ -1,11 +1,11 @@
 .infobox{
     float:right;
-    width:max-content;
-    max-width:320px;
+    width:320px;
     margin:0 0 20px 20px;
     border:1px solid #ccc;
     border-radius:10px;
-    overflow:hidden;
+    overflow-x:auto; /* 横スクロール */
+    overflow-y:hidden;
     background:#fff;
 }
 
