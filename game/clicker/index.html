@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>クリッカー</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+</head>
+<body id="game-body">
+
+<div id="header"></div>
+
+<div class="content">
+
+<div id="toast-container"></div>
+
+<div id="bsod">
+    <h1>:(</h1>
+    <p>
+        問題が発生したため、データと宇宙が崩壊しました。<br>
+        エラー情報を収集しています。自動的に再起動はされません。
+    </p>
+    <br>
+    <p>停止コード: NUMA_FATAL_ERASE_ALL</p>
+    <p style="margin-top:50px;font-size:1rem;color:#aaa;">
+        ※ブラウザを再読み込み（F5キー）すると世界が再構築されます。
+    </p>
+</div>
+
+<div class="game-wrapper" id="main-ui">
+
+    <div class="panel">
+
+        <h3 id="ui-title" style="margin-bottom:5px;">沼クリッカー</h3>
+
+        <div id="ui-titles-area"
+             style="min-height:25px;margin-bottom:15px;"></div>
+
+        <p style="font-size:.8rem;color:#888;">
+            累計:
+            <span id="ui-total-score">0</span>
+        </p>
+
+        <hr>
+
+        <h4>転生（プレステージ）</h4>
+
+        <p style="font-size:.8rem;color:#aaa;">
+            条件:
+            累計
+            <span id="ui-prestige-req"></span>
+            pt
+        </p>
+
+        <p>
+            現在の倍率:
+            <strong id="ui-mult"
+                    style="color:var(--theme-main);">
+                1.00x
+            </strong>
+        </p>
+
+        <button
+            onclick="GAME.prestige()"
+            style="background:var(--theme-accent);color:white;border:none;padding:15px 10px;border-radius:5px;cursor:pointer;width:100%;font-weight:bold;">
+            魂を捧げて 2倍 にする
+        </button>
+
+    </div>
+
+    <div class="panel" id="click-area">
+
+        <div class="score" id="ui-score">0</div>
+
+        <div id="ui-currency" style="color:#777;">
+            ポイント
+        </div>
+
+        <div style="margin-top:10px;font-size:.9rem;margin-bottom:40px;">
+
+            <div style="color:var(--theme-click);">
+                1クリック:
+                +
+                <span id="ui-click-power">1</span>
+            </div>
+
+            <div style="color:var(--theme-accent);">
+                自動収益:
+                <span id="ui-mps">0</span>/s
+            </div>
+
+        </div>
+
+        <div>
+            <button id="main-btn" onclick="GAME.click()"></button>
+        </div>
+
+        <div id="secret-container">
+
+            <span
+                style="color:var(--theme-accent);font-weight:bold;">
+                >_
+            </span>
+
+            <input
+                id="secret-input"
+                class="cyber-input"
+                type="text"
+                placeholder="ACCESS CODE..."
+                autocomplete="off">
+
+            <button
+                class="cyber-btn"
+                onclick="GAME.checkSecret()">
+                EXECUTE
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <h3>ショップ</h3>
+
+        <div id="shop-list"></div>
+
+    </div>
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/script/script.js"></script>
+
+</body>
+</html>
