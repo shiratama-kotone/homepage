@@ -10,7 +10,7 @@ async function loadPages() {
     pageList.push(page.title);
   });
 
-  // 長い順（被り防止）
+  // 🔥被り防止（長い順優先）
   pageList.sort(function(a, b) {
     return b.length - a.length;
   });
@@ -20,6 +20,7 @@ function isHeading(tag) {
   return /^H[1-6]$/.test(tag);
 }
 
+// 文字列をリンク化（左から貪欲一致）
 function linkText(text) {
   var result = "";
   var i = 0;
@@ -50,21 +51,29 @@ function linkText(text) {
   return result;
 }
 
+// DOM走査（安全版）
 function walk(node) {
   if (node.nodeType === 3) {
     var text = node.nodeValue;
     var html = linkText(text);
 
     if (html !== text) {
-      var span = document.createElement("span");
-      span.innerHTML = html;
-      node.parentNode.replaceChild(span, node);
+      var temp = document.createElement("span");
+      temp.innerHTML = html;
+
+      var frag = document.createDocumentFragment();
+
+      while (temp.firstChild) {
+        frag.appendChild(temp.firstChild);
+      }
+
+      node.parentNode.replaceChild(frag, node);
     }
 
   } else if (node.nodeType === 1) {
     var tag = node.tagName;
 
-    // リンク系・コード系は無視
+    // ❌無視対象
     if (
       tag === "A" ||
       tag === "CODE" ||
@@ -73,7 +82,7 @@ function walk(node) {
       tag === "TEXTAREA"
     ) return;
 
-    // 見出し無視
+    // ❌見出し無視
     if (isHeading(tag)) return;
 
     Array.from(node.childNodes).forEach(walk);
@@ -83,3 +92,9 @@ function walk(node) {
 function autoLink(root) {
   walk(root);
 }
+
+// 🚀起動
+window.addEventListener("DOMContentLoaded", async function () {
+  await loadPages();
+  autoLink(document.querySelector(".content"));
+});
