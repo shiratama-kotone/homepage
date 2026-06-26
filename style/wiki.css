@@ -20,7 +20,7 @@
     border-top:1px solid #ddd;
     text-align:left;
     vertical-align:top;
-    white-space:normal;
+    white-space:pre;
     overflow-x:auto;
 }
 
