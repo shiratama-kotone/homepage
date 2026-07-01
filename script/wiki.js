@@ -10,8 +10,19 @@ async function loadPages() {
   var pages = await res.json();
 
   pages.forEach(function(page) {
+
+    // 正式名
     pageMap[page.title] = page.url;
     pageList.push(page.title);
+
+    // 別名
+    if (page.aliases) {
+      page.aliases.forEach(function(alias) {
+        pageMap[alias] = page.url;
+        pageList.push(alias);
+      });
+    }
+
   });
 
   // 長い順（被り防止）
