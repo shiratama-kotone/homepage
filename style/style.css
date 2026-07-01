@@ -1,5 +1,10 @@
 @font-face {
-  font-family: "M PLUS 1p";
+  font-family: "M PLUS 1p Regular";
+  src:url("/assets/MPLUS1p-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "M PLUS 1p Medium";
   src: url("/assets/MPLUS1p-Medium.ttf") format("truetype");
 }
 
@@ -31,7 +36,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "M PLUS 1p", sans-serif;
+  font-family: "M PLUS 1p Regular", sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.8;
@@ -125,13 +130,31 @@ footer {
 
 /* ===== タイポグラフィ ===== */
 h1 {
+  font-family: "M PLUS 1p Medium", sans-serif;
   font-size: 2rem;
   margin: 0 0 12px;
 }
 
 h2 {
+  font-family: "M PLUS 1p Medium", sans-serif;
   font-size: 1.25rem;
   margin: 0 0 10px;
+}
+
+h3{
+  font-family: "M PLUS 1p Medium", sans-serif;
+}
+
+h4{
+  font-family: "M PLUS 1p Medium", sans-serif;
+}
+
+h5{
+  font-family: "M PLUS 1p Medium", sans-serif;
+}
+
+h6{
+  font-family: "M PLUS 1p Medium", sans-serif;
 }
 
 /* ===== カード（共通UIの核） ===== */
