@@ -1,8 +1,14 @@
 var pageList = [];
 var pageMap = {};
 
+function normalizePath(path) {
+  return path
+    .replace(/\.html$/, "")
+    .replace(/\/$/, "");
+}
+
 function getCurrentPath() {
-  return location.pathname.replace(/\/$/, "");
+  return normalizePath(location.pathname);
 }
 
 async function loadPages() {
@@ -50,8 +56,8 @@ function linkText(text) {
 
       if (text.startsWith(name, i)) {
 
-        // 自己リンク防止
-        if (url === currentPath) {
+        // 自己リンク防止（.html有無を無視）
+        if (normalizePath(url) === currentPath) {
           continue;
         }
 
@@ -103,17 +109,23 @@ function walk(node) {
       tag === "SCRIPT" ||
       tag === "STYLE" ||
       tag === "TEXTAREA"
-    ) return;
+    ) {
+      return;
+    }
 
     // 見出し無視
-    if (isHeading(tag)) return;
+    if (isHeading(tag)) {
+      return;
+    }
 
     Array.from(node.childNodes).forEach(walk);
   }
 }
 
 function autoLink(root) {
-  walk(root);
+  if (root) {
+    walk(root);
+  }
 }
 
 // 起動
