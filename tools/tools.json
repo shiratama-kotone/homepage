@@ -3,36 +3,36 @@
     "title": "HTMLソースビューア",
     "desc": "サイトのHTMLを取得して表示",
     "category": "解析",
-    "url": "/tools/program/html-test.html"
+    "url": "/tools/program/html-source"
   },
   {
     "title":"HTML試しツール",
     "desc":"HTMLを書いて試す",
     "category": "解析",
-    "url":"/tools/html-test.html"
+    "url":"/tools/program/html-test"
   },
   {
     "title":"TJA画像化ツール(使用不可)",
     "desc":"TJAを画像化する",
     "category":"太鼓の達人",
-    "url":"/tools/taiko-no-tatsujin/tja-img.html"
+    "url":"/tools/taiko-no-tatsujin/tja-img"
   },
   {
     "title":"ページのスクリーンショット取得",
     "desc":"いろいろなページのスクリーンショットを取得",
     "category":"解析",
-    "url":"/tools/program/page-screenshot.html"
+    "url":"/tools/program/page-screenshot"
   },
   {
     "title":"迷路ジェネレーター",
     "desc":"迷路を作る",
     "category":"便利",
-    "url":"/tools/useful/maze-gen.html"
+    "url":"/tools/useful/maze-gen"
   },
   {
     "title":"midi再生",
     "desc":"midiを再生する",
     "category":"便利",
-    "url":"/tools/useful/midi-play.html"
+    "url":"/tools/useful/midi-play"
   }
 ]
