@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON RATING — CHUNITHM スコア管理</title>
+
+<link rel="stylesheet" href="/style/style.css">
+<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+
+<style>
+*{box-sizing:border-box;}
+
+/* このページ固有の追加分。基本トークン(--bg/--card/--text/--muted/--border/--link/--shadow)や
+   フォント・カード・ボタン・入力欄・タグの基本形は /style/style.css 側に既にあるので、
+   ここでは難易度カラーなど、このアプリ固有のものだけを追加する。 */
+:root{
+  --accent2:#9370db;
+  --bas:#2f9e5c; --adv:#c47f12; --exp:#d43a52; --mas:#8455d9; --ult:#b3860a;
+}
+[data-theme="dark"]{
+  --accent2:#b19bea;
+  --bas:#4fce85; --adv:#f0ab3d; --exp:#f0637c; --mas:#b18df5; --ult:#e3c04f;
+}
+
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+/* ===== アプリ内ツールバー（サイト共通の#headerとは別） ===== */
+.apptoolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .mark{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--link),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#fff;font-size:15px;flex-shrink:0;
+}
+.brand small{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.03em;}
+.headerbtns{display:flex;gap:8px;}
+.iconbtn{
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  width:38px;height:38px;border-radius:10px;font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.2s;
+}
+.iconbtn:hover{opacity:.8;}
+
+/* ===== カード内の小要素 ===== */
+.ratingpanel{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+.dialwrap{width:150px;height:150px;flex-shrink:0;position:relative;}
+.dialwrap svg{width:100%;height:100%;transform:rotate(-90deg);}
+.dial-bg{fill:none;stroke:var(--border);stroke-width:10;}
+.dial-fg{fill:none;stroke-width:10;stroke-linecap:round;stroke:url(#dialGrad);transition:stroke-dashoffset .6s ease;}
+.dial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.dial-center .num{font-size:28px;font-weight:700;line-height:1;font-family:"M PLUS 1p Medium",sans-serif;}
+.dial-center .lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;margin-top:4px;}
+.ratingmeta{flex:1;min-width:220px;}
+.ratingmeta h2{margin:0 0 8px;font-size:.85rem;color:var(--muted);font-weight:500;letter-spacing:.02em;}
+.ratingmeta .sub-scores{display:flex;gap:24px;flex-wrap:wrap;margin-top:10px;}
+.sub-score .k{font-size:.75rem;color:var(--muted);}
+.sub-score .v{font-size:20px;font-weight:700;}
+.sub-score .v span{font-size:12px;color:var(--muted);font-weight:400;}
+
+/* ===== タブ ===== */
+.tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+.tab{
+  padding:10px 16px;cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:500;
+  border-bottom:2px solid transparent;user-select:none;
+}
+.tab.active{color:var(--text);border-bottom-color:var(--link);}
+
+.panel{display:none;}
+.panel.active{display:block;}
+
+.frame-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.frame-title h3{margin:0;font-size:.9rem;}
+.frame-title .count{font-size:.75rem;color:var(--muted);}
+
+.row{
+  display:grid;grid-template-columns:30px 1fr auto auto;gap:10px;align-items:center;
+  padding:10px 4px;border-bottom:1px solid var(--border);
+}
+.row:last-child{border-bottom:none;}
+.rank{font-size:.75rem;color:var(--muted);text-align:center;font-weight:700;}
+.songcell .title{font-size:.9rem;font-weight:500;}
+.songcell .meta{font-size:.75rem;color:var(--muted);margin-top:2px;}
+
+/* diffchip: /style/style.css の .tag と同じ「薄い背景+色文字」ピル */
+.diffchip{
+  display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;
+  border-radius:999px;margin-right:6px;
+}
+.scorecell{text-align:right;}
+.scorecell .score{font-size:.9rem;font-weight:700;}
+.scorecell .rate{font-size:.75rem;color:var(--link);}
+.rowbtns{display:flex;gap:4px;}
+.tinybtn{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:12px;transition:.2s;
+}
+.tinybtn:hover{color:var(--exp);border-color:var(--exp);}
+
+.empty{color:var(--muted);font-size:.85rem;text-align:center;padding:26px 10px;}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:600px){.form-grid{grid-template-columns:1fr;}}
+.field{margin-bottom:12px;}
+.field label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:5px;font-weight:700;}
+
+.btn{
+  padding:10px 18px;border:none;border-radius:10px;background:var(--link);color:#fff;
+  font-weight:700;font-size:.85rem;cursor:pointer;transition:.2s;
+}
+.btn:hover{opacity:.9;}
+.btn:active{transform:scale(.97);}
+.btn.secondary{background:var(--card);color:var(--text);border:1px solid var(--border);}
+.btn.ghost{background:none;color:var(--exp);border:1px solid var(--border);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+
+.autocomplete{position:relative;}
+.ac-list{
+  position:absolute;top:100%;left:0;right:0;background:var(--card);
+  border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;
+  max-height:240px;overflow-y:auto;z-index:30;display:none;box-shadow:var(--shadow);
+}
+.ac-list.show{display:block;}
+.ac-item{padding:9px 12px;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border);}
+.ac-item:hover,.ac-item.hi{background:rgba(37,99,235,0.08);}
+.ac-item .a-title{font-weight:500;}
+.ac-item .a-meta{font-size:.75rem;color:var(--muted);}
+
+.diffgrid{display:flex;gap:6px;flex-wrap:wrap;}
+.diffbtn{
+  padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:var(--card);
+  color:var(--text);cursor:pointer;font-size:.8rem;font-weight:700;transition:.2s;
+}
+.diffbtn.sel{color:#161a22;}
+
+/* ===== 設定モーダル ===== */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(15,17,21,0.5);display:none;
+  align-items:flex-start;justify-content:center;z-index:100;padding:30px 14px;overflow-y:auto;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:22px;max-width:520px;width:100%;box-shadow:var(--shadow);
+}
+.modal h2{margin-top:0;font-size:1.05rem;}
+.modal .helptext{font-size:.75rem;color:var(--muted);line-height:1.6;margin:4px 0 0;}
+.modal hr{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.status-line{font-size:.78rem;margin-top:8px;padding:8px 10px;border-radius:8px;display:none;}
+.status-line.ok{display:block;background:rgba(47,158,92,0.1);color:var(--bas);}
+.status-line.err{display:block;background:rgba(212,58,82,0.1);color:var(--exp);}
+.status-line.info{display:block;background:rgba(37,99,235,0.08);color:var(--link);}
+.closebtn{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
+
+.apppagefoot{color:var(--muted);font-size:.75rem;text-align:center;margin-top:30px;}
+
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  padding:10px 18px;border-radius:10px;font-size:.85rem;z-index:200;box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="content">
+
+<div class="apptoolbar">
+  <div class="brand">
+    <div class="mark">超</div>
+    <small>CHUNITHM ベスト枠 / 新曲枠 トラッカー</small>
+  </div>
+  <div class="headerbtns">
+    <button class="iconbtn" id="themeToggle" title="ダーク/ライト切替">🌓</button>
+    <button class="iconbtn" id="openSettings" title="設定">⚙</button>
+  </div>
+</div>
+
+<h1>NEON RATING</h1>
+
+<p>
+CHUNITHMのスコアを入力して、ベスト枠・新曲枠・レーティングを自動計算するツールです。楽曲定数はchunirec APIから取得し、スコア記録はこの端末のブラウザ内にのみ保存されます。
+</p>
+
+
+  <div class="ratingpanel card">
+    <div class="dialwrap">
+      <svg viewBox="0 0 120 120">
+        <defs>
+          <linearGradient id="dialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#9370db"/>
+          </linearGradient>
+        </defs>
+        <circle class="dial-bg" cx="60" cy="60" r="52"/>
+        <circle class="dial-fg" id="dialFg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="dial-center">
+        <div class="num mono" id="totalRating">0.00</div>
+        <div class="lbl">RATING</div>
+      </div>
+    </div>
+    <div class="ratingmeta">
+      <h2>BEST 30 + NEW 20 の平均</h2>
+      <div class="sub-scores">
+        <div class="sub-score">
+          <div class="k">ベスト枠 (30)</div>
+          <div class="v mono"><span id="bestSum">0.00</span> <span>/ 件数 <span id="bestCount">0</span></span></div>
+          <div class="k mono" id="bestAvg" style="margin-top:2px;color:var(--muted);"></div>
+        </div>
+        <div class="sub-score">
+          <div class="k">新曲枠 (20)</div>
+          <div class="v mono"><span id="newSum">0.00</span> <span>/ 件数 <span id="newCount">0</span></span></div>
+          <div class="k mono" id="newAvg" style="margin-top:2px;color:var(--muted);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="frames">ベスト枠 / 新曲枠</div>
+    <div class="tab" data-tab="add">スコア入力</div>
+    <div class="tab" data-tab="records">全記録</div>
+  </div>
+
+  <!-- FRAMES -->
+  <div class="panel active" id="panel-frames">
+    <div class="card">
+      <div class="frame-title">
+        <h3>ベスト枠</h3>
+        <span class="count"><span id="bestListCount">0</span> / 30</span>
+      </div>
+      <div id="bestList"><div class="empty">まだ記録がありません</div></div>
+    </div>
+    <div class="card">
+      <div class="frame-title">
+        <h3>新曲枠</h3>
+        <span class="count"><span id="newListCount">0</span> / 20</span>
+      </div>
+      <div id="newList"><div class="empty">まだ記録がありません</div></div>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="panel" id="panel-add">
+    <div class="card">
+      <div class="field autocomplete">
+        <label>楽曲検索（キャッシュ済みデータから検索）</label>
+        <input type="text" id="songSearch" placeholder="曲名の一部を入力…" autocomplete="off">
+        <div class="ac-list" id="acList"></div>
+      </div>
+
+      <div id="selectedSongBox" style="display:none;margin-bottom:12px;">
+        <div class="card" style="background:var(--card);margin-bottom:0;">
+          <div class="songcell">
+            <div class="title" id="selTitle" style="font-size:15px;"></div>
+            <div class="meta" id="selMeta"></div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>難易度</label>
+            <div class="diffgrid" id="diffButtons"></div>
+          </div>
+        </div>
+      </div>
+
+      <details style="margin-bottom:14px;">
+        <summary style="cursor:pointer;color:var(--muted);font-size:12px;">キャッシュにない曲を手動入力する</summary>
+        <div class="form-grid" style="margin-top:10px;">
+          <div class="field">
+            <label>曲名</label>
+            <input type="text" id="manualTitle" placeholder="曲名">
+          </div>
+          <div class="field">
+            <label>難易度</label>
+            <select id="manualDiff">
+              <option value="BAS">BASIC</option>
+              <option value="ADV">ADVANCED</option>
+              <option value="EXP">EXPERT</option>
+              <option value="MAS">MASTER</option>
+              <option value="ULT">ULTIMA</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>譜面定数</label>
+            <input type="number" id="manualConst" step="0.1" placeholder="例: 13.2">
+          </div>
+          <div class="field">
+            <label>新曲枠として扱う</label>
+            <select id="manualIsNew">
+              <option value="0">いいえ（ベスト枠対象）</option>
+              <option value="1">はい（新曲枠対象）</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn secondary" id="useManualBtn" type="button">この内容で入力欄にセット</button>
+      </details>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>スコア</label>
+          <input type="number" id="scoreInput" min="0" max="1010000" placeholder="例: 1007650">
+        </div>
+        <div class="field">
+          <label>達成日（任意）</label>
+          <input type="date" id="dateInput">
+        </div>
+      </div>
+      <div class="field">
+        <label>メモ（任意）</label>
+        <input type="text" id="noteInput" placeholder="コンボ数、感想など">
+      </div>
+      <div class="field" id="previewRate" style="display:none;">
+        <label>プレビュー</label>
+        <div class="mono" style="font-size:15px;" id="previewRateText"></div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn" id="saveRecordBtn">保存する</button>
+        <button class="btn secondary" id="clearFormBtn" type="button">クリア</button>
+      </div>
+      <div class="status-line" id="addStatus"></div>
+    </div>
+  </div>
+
+  <!-- RECORDS -->
+  <div class="panel" id="panel-records">
+    <div class="card">
+      <div class="field">
+        <input type="text" id="recordFilter" placeholder="曲名で絞り込み…">
+      </div>
+      <div id="recordsList"><div class="empty">まだ記録がありません</div></div>
+    </div>
+  </div>
+
+  <p class="apppagefoot">
+    楽曲定数データは <a href="https://developer.chunirec.net/" target="_blank">chunirec API</a> から取得しています。すべてのスコア記録はこの端末のブラウザ内にのみ保存されます。
+  </p>
+
+</div>
+
+<div id="footer"></div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <button class="closebtn" id="closeSettings">×</button>
+    <h2>⚙ 設定</h2>
+
+    <div class="field">
+      <label>chunirec API トークン</label>
+      <input type="password" id="tokenInput" placeholder="アクセストークン">
+      <p class="helptext">developer.chunirec.net で発行したトークン。ブラウザ内にのみ保存され、外部には送信されません（chunirec API 以外への通信は行いません）。</p>
+    </div>
+    <div class="field">
+      <label>region パラメータ</label>
+      <input type="text" id="regionInput" placeholder="jp2" value="jp2">
+    </div>
+    <div class="field">
+      <label>API ベースURL（CORSでブロックされる場合はCloudflare Workerのプロキシに変更）</label>
+      <input type="text" id="baseUrlInput" placeholder="https://api.chunirec.net">
+      <p class="helptext">既定値は <span class="mono">https://api.chunirec.net</span>。ブラウザから直接アクセスできない場合は、同じパス構成(<span class="mono">/2.0/music/showall.json</span>)を転送するCloudflare Workerを立てて、そのWorkerのURLに変更してください。必要ならWorkerのコード例を出せます、と伝えてください。</p>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn" id="fetchSongsBtn">楽曲定数データを取得・更新</button>
+    </div>
+    <div class="status-line" id="fetchStatus"></div>
+    <p class="helptext" id="lastFetchedText"></p>
+
+    <hr>
+
+    <div class="field">
+      <label>chunirecのスコア記録を取り込む</label>
+      <p class="helptext">上のトークンに紐づくchunirecアカウントに、既に登録済みのスコア記録がある場合、それをまとめて取り込めます（<span class="mono">records/showall.json</span>）。新曲枠の判定には楽曲定数データが必要なので、先に「楽曲定数データを取得・更新」を行ってから実行してください。ローカルの記録より低いスコアは上書きしません。</p>
+      <div class="btnrow">
+        <button class="btn secondary" id="importRecordsBtn">chunirecからレコードを取り込む</button>
+      </div>
+      <div class="status-line" id="importRecordsStatus"></div>
+    </div>
+
+    <hr>
+
+    <div class="field">
+      <label>新曲枠の判定基準日（この日付以降にリリースされた楽曲を新曲扱い）</label>
+      <input type="date" id="cutoffInput">
+      <p class="helptext">現在の稼働バージョンで追加された楽曲のリリース日を目安に設定してください。空欄の場合、新曲判定は行われず全曲がベスト枠の対象になります。</p>
+    </div>
+    <div class="btnrow"><button class="btn secondary" id="saveCutoffBtn">保存</button></div>
+
+    <hr>
+
+    <div class="field">
+      <label>データのバックアップ</label>
+      <p class="helptext">スコア記録・楽曲キャッシュ・設定をまとめてJSONファイルとして書き出し／読み込みできます。機種変更やブラウザデータ消去に備えて、たまにエクスポートしておくことをおすすめします。</p>
+      <div class="btnrow">
+        <button class="btn secondary" id="exportBtn">JSONエクスポート</button>
+        <button class="btn secondary" id="importBtn">JSONインポート</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+    </div>
+
+    <hr>
+    <div class="field">
+      <label>危険な操作</label>
+      <div class="btnrow">
+        <button class="btn ghost" id="clearRecordsBtn">スコア記録を全削除</button>
+        <button class="btn ghost" id="clearSongsBtn">楽曲キャッシュを削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/script/script.js"></script>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== Storage layer ===================== */
+const LS_SETTINGS = "neonrating_settings";
+const LS_SONGS = "neonrating_songs";
+const LS_RECORDS = "neonrating_records";
+
+function loadSettings(){
+  try{ return JSON.parse(localStorage.getItem(LS_SETTINGS)) || {}; }catch(e){ return {}; }
+}
+function saveSettings(s){ localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); }
+
+function loadSongs(){
+  try{ return JSON.parse(localStorage.getItem(LS_SONGS)) || {list:[], updatedAt:null}; }
+  catch(e){ return {list:[], updatedAt:null}; }
+}
+function saveSongs(obj){ localStorage.setItem(LS_SONGS, JSON.stringify(obj)); }
+
+function loadRecords(){
+  try{ return JSON.parse(localStorage.getItem(LS_RECORDS)) || {}; }
+  catch(e){ return {}; }
+}
+function saveRecords(obj){ localStorage.setItem(LS_RECORDS, JSON.stringify(obj)); }
+
+let settings = loadSettings();
+let songsData = loadSongs();   // {list:[{id,title,artist,genre,release,bpm,charts:{BAS:{level,const,is_const_unknown},...}}], updatedAt}
+let records = loadRecords();   // key `${songKey}__${diff}` -> {songKey,title,diff,isManual,isNew,const,score,date,note}
+
+/* ===================== Difficulty meta ===================== */
+const DIFF_ORDER = ["BAS","ADV","EXP","MAS","ULT"];
+const DIFF_LABEL = {BAS:"BASIC",ADV:"ADVANCED",EXP:"EXPERT",MAS:"MASTER",ULT:"ULTIMA"};
+const DIFF_COLOR = {BAS:"var(--bas)",ADV:"var(--adv)",EXP:"var(--exp)",MAS:"var(--mas)",ULT:"var(--ult)"};
+
+/* ===================== Rating formula ===================== */
+// c = chart constant, s = score (0-1010000)
+function calcRate(c, s){
+  if (s == null || c == null) return 0;
+  let r;
+  if (s < 500000) r = 0;
+  else if (s < 800000) r = Math.max(0, (s-500000)*(c-5)/600000);
+  else if (s < 900000) r = Math.max(0, (c-5)/2 + (s-800000)*(c-5)/200000);
+  else if (s < 925000) r = Math.max(0, (c-5) + 0.00008*(s-900000));
+  else if (s < 975000) r = Math.max(0, (c-3) + 0.00006*(s-925000));
+  else if (s < 990000) r = c + 0.00004*(s-975000);
+  else if (s < 1000000) r = c + 0.6 + 0.00004*(s-990000);
+  else if (s < 1005000) r = c + 1.0 + 0.0001*(s-1000000);
+  else if (s < 1007500) r = c + 1.5 + 0.0002*(s-1005000);
+  else if (s < 1009000) r = c + 2.0 + 0.0001*(s-1007500);
+  else r = c + 2.15;
+  return Math.floor(r*100)/100;
+}
+function rankLabel(s){
+  if (s>=1009000) return "SSS+";
+  if (s>=1007500) return "SSS";
+  if (s>=1005000) return "SS+";
+  if (s>=1000000) return "SS";
+  if (s>=990000) return "S+";
+  if (s>=975000) return "S";
+  if (s>=950000) return "AAA";
+  if (s>=925000) return "AA";
+  if (s>=900000) return "A";
+  if (s>=800000) return "BBB";
+  if (s>=700000) return "BB";
+  if (s>=600000) return "B";
+  if (s>=500000) return "C";
+  return "D";
+}
+
+/* ===================== Theme toggle ===================== */
+const THEME_KEY = "neonrating_theme";
+function applyTheme(t){
+  if(t === "dark") document.documentElement.setAttribute("data-theme","dark");
+  else document.documentElement.removeAttribute("data-theme");
+}
+let currentTheme = localStorage.getItem(THEME_KEY) ||
+  (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(currentTheme);
+document.getElementById("themeToggle").onclick = ()=>{
+  currentTheme = currentTheme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, currentTheme);
+  applyTheme(currentTheme);
+};
+
+/* ===================== Toast ===================== */
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ===================== Settings modal ===================== */
+const settingsModal = document.getElementById("settingsModal");
+document.getElementById("openSettings").onclick = ()=>{
+  document.getElementById("tokenInput").value = settings.token || "";
+  document.getElementById("regionInput").value = settings.region || "jp2";
+  document.getElementById("baseUrlInput").value = settings.baseUrl || "https://api.chunirec.net";
+  document.getElementById("cutoffInput").value = settings.cutoff || "";
+  updateLastFetchedText();
+  settingsModal.classList.add("show");
+};
+document.getElementById("closeSettings").onclick = ()=> settingsModal.classList.remove("show");
+settingsModal.onclick = (e)=>{ if(e.target===settingsModal) settingsModal.classList.remove("show"); };
+
+function updateLastFetchedText(){
+  const el = document.getElementById("lastFetchedText");
+  if(songsData.updatedAt){
+    el.textContent = "楽曲データ: " + songsData.list.length + "曲 / 最終取得: " + new Date(songsData.updatedAt).toLocaleString("ja-JP");
+  } else {
+    el.textContent = "楽曲データ未取得です。";
+  }
+}
+
+document.getElementById("saveCutoffBtn").onclick = ()=>{
+  settings.cutoff = document.getElementById("cutoffInput").value || "";
+  saveSettings(settings);
+  toast("新曲判定日を保存しました");
+  renderAll();
+};
+
+/* ===================== Fetch song data from chunirec ===================== */
+function setFetchStatus(kind, msg){
+  const el = document.getElementById("fetchStatus");
+  el.className = "status-line " + kind;
+  el.textContent = msg;
+}
+
+document.getElementById("fetchSongsBtn").onclick = async ()=>{
+  const token = document.getElementById("tokenInput").value.trim();
+  const region = document.getElementById("regionInput").value.trim() || "jp2";
+  const baseUrl = (document.getElementById("baseUrlInput").value.trim() || "https://api.chunirec.net").replace(/\/$/,"");
+
+  if(!token){
+    setFetchStatus("err","トークンを入力してください。");
+    return;
+  }
+  settings.token = token;
+  settings.region = region;
+  settings.baseUrl = baseUrl;
+  saveSettings(settings);
+
+  const url = baseUrl + "/2.0/music/showall.json?region=" + encodeURIComponent(region) + "&token=" + encodeURIComponent(token);
+  setFetchStatus("info","取得中…（全曲データのため少し時間がかかります）");
+  document.getElementById("fetchSongsBtn").disabled = true;
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok){
+      const bodyText = await res.text().catch(()=> "");
+      throw new Error("HTTP " + res.status + " " + (bodyText||"").slice(0,200));
+    }
+    const json = await res.json();
+    if(!Array.isArray(json)){
+      throw new Error("想定外の応答形式です。");
+    }
+    const list = json.map(item=>{
+      const charts = {};
+      Object.keys(item.data||{}).forEach(k=>{
+        if(DIFF_ORDER.includes(k)){
+          charts[k] = {
+            level: item.data[k].level,
+            const: item.data[k].const,
+            is_const_unknown: !!item.data[k].is_const_unknown
+          };
+        }
+      });
+      return {
+        id: item.meta.id,
+        title: item.meta.title,
+        artist: item.meta.artist,
+        genre: item.meta.genre,
+        release: item.meta.release,
+        bpm: item.meta.bpm,
+        charts: charts
+      };
+    });
+    songsData = {list, updatedAt: Date.now()};
+    saveSongs(songsData);
+    setFetchStatus("ok", list.length + "曲のデータを取得しました。");
+    updateLastFetchedText();
+    renderAll();
+  }catch(err){
+    console.error(err);
+    setFetchStatus("err", "取得に失敗しました: " + err.message + " — CORSでブロックされている場合はCloudflare Workerのプロキシ経由に切り替えてください（Workerのコード例が必要であれば伝えてください）。");
+  }finally{
+    document.getElementById("fetchSongsBtn").disabled = false;
+  }
+};
+
+/* ===================== Import records from chunirec ===================== */
+function setImportRecordsStatus(kind, msg){
+  const el = document.getElementById("importRecordsStatus");
+  el.className = "status-line " + kind;
+  el.textContent = msg;
+}
+
+document.getElementById("importRecordsBtn").onclick = async ()=>{
+  const token = document.getElementById("tokenInput").value.trim();
+  const region = document.getElementById("regionInput").value.trim() || "jp2";
+  const baseUrl = (document.getElementById("baseUrlInput").value.trim() || "https://api.chunirec.net").replace(/\/$/,"");
+
+  if(!token){
+    setImportRecordsStatus("err","トークンを入力してください。");
+    return;
+  }
+  settings.token = token; settings.region = region; settings.baseUrl = baseUrl;
+  saveSettings(settings);
+
+  const url = baseUrl + "/2.0/records/showall.json?region=" + encodeURIComponent(region) + "&token=" + encodeURIComponent(token);
+  setImportRecordsStatus("info","取得中…");
+  document.getElementById("importRecordsBtn").disabled = true;
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok){
+      const bodyText = await res.text().catch(()=> "");
+      throw new Error("HTTP " + res.status + " " + (bodyText||"").slice(0,200));
+    }
+    const json = await res.json();
+    const list = Array.isArray(json.records) ? json.records : (Array.isArray(json) ? json : null);
+    if(!list) throw new Error("想定外の応答形式です。");
+
+    if(songsData.list.length===0){
+      setImportRecordsStatus("info","楽曲定数データが未取得のため、新曲枠の判定は全曲「いいえ」扱いで取り込みます。後で楽曲定数データを取得すると精度が上がります。");
+    }
+
+    let imported=0, skipped=0, updated=0;
+    list.forEach(rec=>{
+      if(!rec.is_played || !DIFF_ORDER.includes(rec.diff) || !rec.score) { skipped++; return; }
+      const songMeta = songsData.list.find(s=>s.id===rec.id);
+      const isNew = songMeta ? isSongNew(songMeta.release) : false;
+      const key = rec.id + "__" + rec.diff;
+      const existing = records[key];
+      if(existing && existing.score >= rec.score){ skipped++; return; }
+      records[key] = {
+        key, title: rec.title, diff: rec.diff,
+        const: (rec.const!=null ? rec.const : (rec.level!=null ? rec.level : null)),
+        isNew,
+        score: rec.score,
+        date: rec.updated_at ? rec.updated_at.slice(0,10) : null,
+        note: "",
+        updatedAt: Date.now()
+      };
+      existing ? updated++ : imported++;
+    });
+    saveRecords(records);
+    setImportRecordsStatus("ok", "新規 "+imported+"件、更新 "+updated+"件を取り込みました（スキップ "+skipped+"件）。");
+    toast("chunirecからレコードを取り込みました");
+    renderAll();
+  }catch(err){
+    console.error(err);
+    setImportRecordsStatus("err","取り込みに失敗しました: " + err.message + " — CORSでブロックされている場合はCloudflare Workerのプロキシ経由に切り替えてください。");
+  }finally{
+    document.getElementById("importRecordsBtn").disabled = false;
+  }
+};
+
+/* ===================== Export / Import ===================== */
+document.getElementById("exportBtn").onclick = ()=>{
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    settings: {region: settings.region, baseUrl: settings.baseUrl, cutoff: settings.cutoff}, // token excluded from export for safety
+    songs: songsData,
+    records: records
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  const stamp = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  a.download = "neonrating_backup_"+stamp+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  toast("エクスポートしました");
+};
+
+document.getElementById("importBtn").onclick = ()=> document.getElementById("importFile").click();
+document.getElementById("importFile").onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const payload = JSON.parse(reader.result);
+      if(payload.songs){ songsData = payload.songs; saveSongs(songsData); }
+      if(payload.records){ records = payload.records; saveRecords(records); }
+      if(payload.settings){
+        settings.region = payload.settings.region || settings.region;
+        settings.baseUrl = payload.settings.baseUrl || settings.baseUrl;
+        settings.cutoff = payload.settings.cutoff || settings.cutoff;
+        saveSettings(settings);
+      }
+      toast("インポートしました");
+      updateLastFetchedText();
+      renderAll();
+    }catch(err){
+      alert("読み込みに失敗しました: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+};
+
+document.getElementById("clearRecordsBtn").onclick = ()=>{
+  if(confirm("すべてのスコア記録を削除します。よろしいですか？")){
+    records = {};
+    saveRecords(records);
+    toast("記録を削除しました");
+    renderAll();
+  }
+};
+document.getElementById("clearSongsBtn").onclick = ()=>{
+  if(confirm("楽曲キャッシュを削除します。よろしいですか？")){
+    songsData = {list:[], updatedAt:null};
+    saveSongs(songsData);
+    updateLastFetchedText();
+    toast("楽曲キャッシュを削除しました");
+  }
+};
+
+/* ===================== Tabs ===================== */
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.onclick = ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("panel-"+tab.dataset.tab).classList.add("active");
+  };
+});
+
+/* ===================== Add record: song search ===================== */
+let selectedSong = null; // {id,title,artist,release,charts}
+let selectedDiff = null;
+let manualEntry = null; // {title,diff,const,isNew}
+
+const songSearch = document.getElementById("songSearch");
+const acList = document.getElementById("acList");
+
+songSearch.addEventListener("input", ()=>{
+  const q = songSearch.value.trim().toLowerCase();
+  acList.innerHTML = "";
+  if(!q){ acList.classList.remove("show"); return; }
+  const matches = songsData.list.filter(s=>
+    (s.title||"").toLowerCase().includes(q) || (s.artist||"").toLowerCase().includes(q)
+  ).slice(0,30);
+  if(matches.length===0){
+    acList.innerHTML = '<div class="ac-item" style="color:var(--muted);">該当曲なし（楽曲キャッシュ未取得の可能性）</div>';
+    acList.classList.add("show");
+    return;
+  }
+  matches.forEach(s=>{
+    const div = document.createElement("div");
+    div.className = "ac-item";
+    div.innerHTML = '<div class="a-title">'+escapeHtml(s.title)+'</div><div class="a-meta">'+escapeHtml(s.artist||"")+' ・ '+escapeHtml(s.genre||"")+'</div>';
+    div.onclick = ()=>{ selectSong(s); acList.classList.remove("show"); songSearch.value = s.title; };
+    acList.appendChild(div);
+  });
+  acList.classList.add("show");
+});
+document.addEventListener("click",(e)=>{
+  if(!e.target.closest(".autocomplete")) acList.classList.remove("show");
+});
+
+function selectSong(s){
+  selectedSong = s;
+  manualEntry = null;
+  selectedDiff = null;
+  document.getElementById("selectedSongBox").style.display = "block";
+  document.getElementById("selTitle").textContent = s.title;
+  document.getElementById("selMeta").textContent = (s.artist||"") + " ・ " + (s.release||"不明") + " リリース";
+  const diffButtons = document.getElementById("diffButtons");
+  diffButtons.innerHTML = "";
+  DIFF_ORDER.forEach(d=>{
+    if(s.charts[d]){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "diffbtn";
+      btn.style.borderColor = DIFF_COLOR[d];
+      btn.textContent = DIFF_LABEL[d] + " " + (s.charts[d].const || s.charts[d].level || "?");
+      btn.onclick = ()=>{
+        selectedDiff = d;
+        diffButtons.querySelectorAll(".diffbtn").forEach(b=>{b.classList.remove("sel"); b.style.background="var(--card)";});
+        btn.classList.add("sel");
+        btn.style.background = DIFF_COLOR[d];
+        updatePreview();
+      };
+      diffButtons.appendChild(btn);
+    }
+  });
+  updatePreview();
+}
+
+document.getElementById("useManualBtn").onclick = ()=>{
+  const title = document.getElementById("manualTitle").value.trim();
+  const diff = document.getElementById("manualDiff").value;
+  const c = parseFloat(document.getElementById("manualConst").value);
+  const isNew = document.getElementById("manualIsNew").value === "1";
+  if(!title || isNaN(c)){
+    alert("曲名と譜面定数を入力してください。");
+    return;
+  }
+  manualEntry = {title, diff, const:c, isNew};
+  selectedSong = null;
+  selectedDiff = diff;
+  document.getElementById("selectedSongBox").style.display = "block";
+  document.getElementById("selTitle").textContent = title + "（手動入力）";
+  document.getElementById("selMeta").textContent = DIFF_LABEL[diff] + " ・ 定数 " + c + (isNew? " ・ 新曲枠対象":" ・ ベスト枠対象");
+  document.getElementById("diffButtons").innerHTML = "";
+  updatePreview();
+  toast("入力欄にセットしました");
+};
+
+document.getElementById("scoreInput").addEventListener("input", updatePreview);
+
+function currentConst(){
+  if(manualEntry) return manualEntry.const;
+  if(selectedSong && selectedDiff) return selectedSong.charts[selectedDiff].const || selectedSong.charts[selectedDiff].level;
+  return null;
+}
+
+function updatePreview(){
+  const c = currentConst();
+  const s = parseInt(document.getElementById("scoreInput").value,10);
+  const box = document.getElementById("previewRate");
+  if(c==null || isNaN(s)){ box.style.display="none"; return; }
+  const rate = calcRate(c,s);
+  box.style.display = "block";
+  document.getElementById("previewRateText").innerHTML =
+    rankLabel(s) + '　単曲Rate <span style="color:var(--link);">' + rate.toFixed(2) + '</span>';
+}
+
+document.getElementById("clearFormBtn").onclick = ()=>{
+  selectedSong=null; selectedDiff=null; manualEntry=null;
+  songSearch.value="";
+  document.getElementById("selectedSongBox").style.display="none";
+  document.getElementById("scoreInput").value="";
+  document.getElementById("dateInput").value="";
+  document.getElementById("noteInput").value="";
+  document.getElementById("manualTitle").value="";
+  document.getElementById("manualConst").value="";
+  document.getElementById("manualDiff").value="BAS";
+  document.getElementById("manualIsNew").value="0";
+  const detailsEl = document.querySelector("#panel-add details");
+  if(detailsEl) detailsEl.open = false;
+  document.getElementById("previewRate").style.display="none";
+  document.getElementById("addStatus").className="status-line";
+};
+
+document.getElementById("saveRecordBtn").onclick = ()=>{
+  const scoreEl = document.getElementById("scoreInput");
+  const score = parseInt(scoreEl.value,10);
+  const statusEl = document.getElementById("addStatus");
+  if(isNaN(score) || score<0 || score>1010000){
+    statusEl.className="status-line err"; statusEl.textContent="スコアを正しく入力してください（0〜1010000）。";
+    return;
+  }
+  if(!selectedSong && !manualEntry){
+    statusEl.className="status-line err"; statusEl.textContent="楽曲を選択するか、手動入力してください。";
+    return;
+  }
+  let key, title, diff, c, isNew;
+  if(manualEntry){
+    key = "manual__"+manualEntry.title+"__"+manualEntry.diff;
+    title = manualEntry.title; diff = manualEntry.diff; c = manualEntry.const; isNew = manualEntry.isNew;
+  }else{
+    key = selectedSong.id+"__"+selectedDiff;
+    title = selectedSong.title; diff = selectedDiff; c = selectedSong.charts[selectedDiff].const || selectedSong.charts[selectedDiff].level;
+    isNew = isSongNew(selectedSong.release);
+  }
+  const existing = records[key];
+  if(existing && existing.score >= score){
+    if(!confirm("既存の記録(スコア "+existing.score+")以下です。上書きしますか？")) return;
+  }
+  records[key] = {
+    key, title, diff, const:c, isNew,
+    score, date: document.getElementById("dateInput").value || null,
+    note: document.getElementById("noteInput").value || "",
+    updatedAt: Date.now()
+  };
+  saveRecords(records);
+  toast("保存しました: "+title+" ("+DIFF_LABEL[diff]+")");
+  renderAll();
+  document.getElementById("clearFormBtn").click();
+};
+
+function isSongNew(releaseDateStr){
+  if(!settings.cutoff || !releaseDateStr) return false;
+  return releaseDateStr >= settings.cutoff;
+}
+
+/* ===================== Records list ===================== */
+document.getElementById("recordFilter").addEventListener("input", renderRecordsList);
+
+function renderRecordsList(){
+  const q = document.getElementById("recordFilter").value.trim().toLowerCase();
+  const list = Object.values(records)
+    .filter(r=> r.title.toLowerCase().includes(q))
+    .sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+  const el = document.getElementById("recordsList");
+  if(list.length===0){ el.innerHTML = '<div class="empty">記録がありません</div>'; return; }
+  el.innerHTML = "";
+  list.forEach(r=>{
+    const rate = calcRate(r.const, r.score);
+    el.appendChild(buildRow(r, rate, true));
+  });
+}
+
+function buildRow(r, rate, withDelete, rank){
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML =
+    '<div class="rank">'+(rank!=null? rank : "")+'</div>'+
+    '<div class="songcell">'+
+      '<div class="title">'+escapeHtml(r.title)+'</div>'+
+      '<div class="meta"><span class="diffchip" style="background:color-mix(in srgb, '+DIFF_COLOR[r.diff]+' 16%, var(--card));color:'+DIFF_COLOR[r.diff]+';">'+DIFF_LABEL[r.diff]+'</span>定数 '+ (r.const!=null? r.const.toFixed ? r.const.toFixed(1) : r.const : "?") +(r.isNew? ' ・ 新曲枠':'')+(r.note? ' ・ '+escapeHtml(r.note):'')+'</div>'+
+    '</div>'+
+    '<div class="scorecell">'+
+      '<div class="score mono">'+r.score.toLocaleString()+'</div>'+
+      '<div class="rate mono">'+rankLabel(r.score)+' / Rate '+rate.toFixed(2)+'</div>'+
+    '</div>'+
+    '<div class="rowbtns"></div>';
+  if(withDelete){
+    const btns = row.querySelector(".rowbtns");
+    const del = document.createElement("button");
+    del.className="tinybtn"; del.textContent="✕"; del.title="削除";
+    del.onclick = ()=>{
+      if(confirm(r.title+" ("+DIFF_LABEL[r.diff]+") の記録を削除しますか？")){
+        delete records[r.key];
+        saveRecords(records);
+        toast("削除しました");
+        renderAll();
+      }
+    };
+    btns.appendChild(del);
+  }
+  return row;
+}
+
+/* ===================== Frames (Best30 / New20) + rating dial ===================== */
+function renderAll(){
+  const all = Object.values(records).map(r=>({...r, rate: calcRate(r.const, r.score)}));
+  const bestPool = all.filter(r=>!r.isNew).sort((a,b)=>b.rate-a.rate).slice(0,30);
+  const newPool = all.filter(r=>r.isNew).sort((a,b)=>b.rate-a.rate).slice(0,20);
+
+  renderFrame("bestList","bestListCount",bestPool);
+  renderFrame("newList","newListCount",newPool);
+
+  const bestSum = bestPool.reduce((a,r)=>a+r.rate,0);
+  const newSum = newPool.reduce((a,r)=>a+r.rate,0);
+  const total = Math.floor((bestSum+newSum)/50*100)/100;
+
+  document.getElementById("bestSum").textContent = bestSum.toFixed(2);
+  document.getElementById("newSum").textContent = newSum.toFixed(2);
+  document.getElementById("bestCount").textContent = bestPool.length;
+  document.getElementById("newCount").textContent = newPool.length;
+  document.getElementById("bestAvg").textContent = bestPool.length>0 ? "平均 "+(bestSum/bestPool.length).toFixed(2) : "";
+  document.getElementById("newAvg").textContent = newPool.length>0 ? "平均 "+(newSum/newPool.length).toFixed(2) : "";
+  document.getElementById("totalRating").textContent = total.toFixed(2);
+  document.querySelector(".ratingmeta h2").textContent =
+    "BEST 30 + NEW 20 の平均（未登録枠は0として計算・現在 "+(bestPool.length+newPool.length)+"/50 件登録済み）";
+
+  // dial: scale 0-18 as a reasonable visual max
+  const circumference = 2*Math.PI*52;
+  const pct = Math.max(0,Math.min(1,total/18));
+  const fg = document.getElementById("dialFg");
+  fg.setAttribute("stroke-dasharray", circumference.toFixed(1));
+  fg.setAttribute("stroke-dashoffset", (circumference*(1-pct)).toFixed(1));
+
+  renderRecordsList();
+}
+
+function renderFrame(listId,countId,pool){
+  const el = document.getElementById(listId);
+  document.getElementById(countId).textContent = pool.length;
+  if(pool.length===0){ el.innerHTML = '<div class="empty">まだ記録がありません</div>'; return; }
+  el.innerHTML = "";
+  pool.forEach((r,i)=> el.appendChild(buildRow(r, r.rate, false, i+1)));
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+/* ===================== Init ===================== */
+updateLastFetchedText();
+renderAll();
+
+})();
+</script>
+</body>
+</html>

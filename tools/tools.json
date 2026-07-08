@@ -34,5 +34,11 @@
     "desc":"midiを再生する",
     "category":"便利",
     "url":"/tools/useful/midi-play"
+  },
+  {
+    "title":"CHUNITHMレート計算",
+    "desc":"CHUNITHMのレートを計算する",
+    "category":"chunithm",
+    "url":"/tools/chunithm/rating"
   }
 ]
