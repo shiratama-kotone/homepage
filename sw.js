@@ -1,4 +1,4 @@
-var CACHE_NAME = "yuyuyu-pwa-v1.0.1";
+var CACHE_NAME = "yuyuyu-pwa-v1.0.2";
 
 self.addEventListener("install", function(e) {
   self.skipWaiting();

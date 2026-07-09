@@ -310,3 +310,28 @@
     top:0;
     z-index:1;
 }
+
+/* ===== 画像変換ツール ===== */
+
+.image-converter-preview {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.image-converter-preview img {
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.image-converter-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#download {
+    display: inline-block;
+    margin-left: 10px;
+}
