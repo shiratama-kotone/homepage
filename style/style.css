@@ -1,6 +1,6 @@
 @font-face {
   font-family: "M PLUS 1p Regular";
-  src:url("/assets/MPLUS1p-Regular.ttf") format("truetype");
+  src: url("/assets/MPLUS1p-Regular.ttf") format("truetype");
 }
 
 @font-face {
@@ -15,7 +15,10 @@
   --muted: #6b7280;
   --border: #e5e7eb;
   --link: #2563eb;
-  --shadow: 0 2px 10px rgba(0,0,0,0.06);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+
+  /* 共通幅 */
+  --container-width: 70rem;
 }
 
 [data-theme="dark"] {
@@ -25,7 +28,7 @@
   --muted: #9ca3af;
   --border: #2a2f3a;
   --link: #8ab4f8;
-  --shadow: 0 2px 10px rgba(0,0,0,0.35);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
 /* ===== ベース ===== */
@@ -36,6 +39,7 @@ html {
 
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: "M PLUS 1p Regular", sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -43,86 +47,90 @@ body {
 }
 
 /* ===== レイアウト ===== */
-.content {
+
+.content,
+header,
+#footer footer {
   width: 95%;
-  max-width: 70rem;
+  max-width: var(--container-width);
   margin: 0 auto;
-  padding: 1.5rem;
+}
+
+.content {
+  padding: 1.5rem 0;
 }
 
 /* ===== ヘッダー / フッター ===== */
+
 #header,
 #footer {
   background: var(--bg);
+}
+
+#header {
   border-bottom: 1px solid var(--border);
 }
 
-header,
-footer {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 14px 20px;
+#footer {
+  border-top: 1px solid var(--border);
+  margin-top: 3.75rem;
 }
 
-#footer{
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    margin-top: 60px;
+header {
+  padding: 1rem 0;
 }
 
-#footer footer{
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 20px;
+#footer footer {
+  padding: 2.5rem 0;
 }
 
-#footer section{
-    margin-bottom: 30px;
+#footer section {
+  margin-bottom: 1.875rem;
 }
 
-#footer h2{
-    margin: 0 0 12px;
-    font-size: 1.2rem;
+#footer h2 {
+  margin: 0 0 .75rem;
+  font-size: 1.2rem;
 }
 
-#footer ul{
-    list-style: none;
-    margin: 0;
-    padding: 0;
+#footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-#footer li{
-    margin: 8px 0;
+#footer li {
+  margin: .5rem 0;
 }
 
-#footer a{
-    color: var(--text);
-    text-decoration: none;
+#footer a {
+  color: var(--text);
+  text-decoration: none;
 }
 
-#footer a:hover{
-    text-decoration: underline;
+#footer a:hover {
+  text-decoration: underline;
 }
 
-#footer p{
-    margin: 0;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    color: var(--text2);
-    font-size: .9rem;
+#footer p {
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .9rem;
 }
 
-/* ★重要：ヘッダーのリンクは“見た目完全維持” */
+/* ===== ヘッダーリンク ===== */
+
 #header a {
   all: unset;
   cursor: pointer;
 }
 
-/* ナビだけ最低限整える */
 #header nav a {
-  margin-right: 12px;
+  margin-right: .75rem;
   color: var(--text);
-  opacity: 0.8;
+  opacity: .8;
 }
 
 #header nav a:hover {
@@ -130,88 +138,112 @@ footer {
 }
 
 /* ===== タイポグラフィ ===== */
+
 h1 {
   font-family: "M PLUS 1p Medium", sans-serif;
-  font-size: 2rem;
-  margin: 0 0 12px;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  margin: 0 0 .75rem;
 }
 
 h2 {
   font-family: "M PLUS 1p Medium", sans-serif;
-  font-size: 1.25rem;
-  margin: 0 0 10px;
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  margin: 0 0 .625rem;
 }
 
-h3{
+h3,
+h4,
+h5,
+h6 {
   font-family: "M PLUS 1p Medium", sans-serif;
 }
 
-h4{
-  font-family: "M PLUS 1p Medium", sans-serif;
-}
+/* ===== カード ===== */
 
-h5{
-  font-family: "M PLUS 1p Medium", sans-serif;
-}
-
-h6{
-  font-family: "M PLUS 1p Medium", sans-serif;
-}
-
-/* ===== カード（共通UIの核） ===== */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
+  border-radius: .875rem;
+  padding: 1.125rem;
   box-shadow: var(--shadow);
-  transition: 0.2s ease;
+  transition: .2s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
 }
 
-/* ===== input（共通） ===== */
-input,
-textarea {
-  font-family: inherit;
+/* ===== フォーム ===== */
+
+form {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
+  max-width: 50rem;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+form label {
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
   color: var(--text);
-  outline: none;
-  transition: 0.2s;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: .625rem;
+  padding: .75rem .875rem;
+  transition: .2s;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 13.75rem;
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
+  outline: none;
   border-color: var(--link);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
 }
 
-/* ===== button（共通） ===== */
-button {
-  padding: 8px 12px;
+/* ===== ボタン ===== */
+
+button,
+form button {
+  width: fit-content;
+  font: inherit;
+  font-weight: 700;
+  padding: .75rem 1.75rem;
   border: none;
-  border-radius: 10px;
+  border-radius: .625rem;
   background: var(--link);
   color: #fff;
   cursor: pointer;
-  transition: 0.2s;
+  transition: .2s;
 }
 
-button:hover {
-  opacity: 0.9;
+button:hover,
+form button:hover {
+  opacity: .95;
+  transform: translateY(-2px);
 }
 
-button:active {
-  transform: scale(0.97);
+button:active,
+form button:active {
+  transform: scale(.97);
 }
 
-/* ===== link（共通） ===== */
+/* ===== リンク ===== */
+
 a {
   color: var(--link);
   text-decoration: none;
@@ -221,105 +253,48 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ===== form（共通）===== */
-form{
-    max-width:700px;
-    margin:30px auto;
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-}
-
-form label{
-    font-weight:700;
-}
-
-form input,
-form select,
-form textarea{
-    width:100%;
-    box-sizing:border-box;
-    padding:12px 14px;
-    font:inherit;
-    color:inherit;
-    background:var(--bg2, #fff);
-    border:1px solid #ccc;
-    border-radius:10px;
-    transition:.2s;
-}
-
-form textarea{
-    resize:vertical;
-    min-height:220px;
-}
-
-form input:focus,
-form select:focus,
-form textarea:focus{
-    outline:none;
-    border-color:#9370db;
-    box-shadow:0 0 0 3px rgba(147,112,219,.2);
-}
-
-form button{
-    width:fit-content;
-    padding:12px 28px;
-    font:inherit;
-    font-weight:700;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    background:#9370db;
-    color:#fff;
-    transition:.2s;
-}
-
-form button:hover{
-    transform:translateY(-2px);
-    filter:brightness(1.05);
-}
-
-form button:active{
-    transform:translateY(0);
-} 
-
 /* ===== 補助テキスト ===== */
+
 .date,
 .tags,
 .description {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: .9rem;
 }
 
-/* ===== タグ（共通UI） ===== */
+/* ===== タグ ===== */
+
 .tag {
   display: inline-block;
-  font-size: 0.75rem;
-  padding: 2px 8px;
+  padding: .125rem .5rem;
   border-radius: 999px;
-  background: rgba(37,99,235,0.08);
+  font-size: .75rem;
+  background: rgba(37, 99, 235, .08);
   color: var(--link);
 }
 
-/* ===== コードビューア（共通） ===== */
+/* ===== コードビュー ===== */
+
 #srcOutput {
   background: #0b1220;
   color: #e5e7eb;
-  padding: 14px;
-  border-radius: 12px;
+  padding: .875rem;
+  border-radius: .75rem;
   overflow: auto;
   font-family: monospace;
   line-height: 1.6;
 }
 
 /* ===== 画像 ===== */
+
 img {
   display: block;
   width: 100%;
   max-width: 100%;
   height: auto;
   margin: 1rem auto;
-  border-radius: 0.625rem;
+  border-radius: .625rem;
+  box-sizing: border-box;
 }
 
 img[height] {
