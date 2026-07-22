@@ -44,9 +44,10 @@ body {
 
 /* ===== レイアウト ===== */
 .content {
-  max-width: 920px;
+  width: 95%;
+  max-width: 70rem;
   margin: 0 auto;
-  padding: 24px;
+  padding: 1.5rem;
 }
 
 /* ===== ヘッダー / フッター ===== */
@@ -309,4 +310,19 @@ form button:active{
   overflow: auto;
   font-family: monospace;
   line-height: 1.6;
+}
+
+/* ===== 画像 ===== */
+img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  border-radius: 0.625rem;
+}
+
+img[height] {
+  width: auto;
+  max-width: 100%;
 }

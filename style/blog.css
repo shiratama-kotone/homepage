@@ -1,9 +1,9 @@
 hr {
   border: none;
   height: 2px;
-  width: 80%;
-  background-color: #ffc1e0;
-  margin: 16px auto;
+  width: 100%;
+  background: #ffc1e0;
+  margin: 1rem 0;
 }
 
 .blog-entry {
