@@ -3,66 +3,81 @@
   src: url("/assets/pzim3x5b.ttf") format("truetype");
 }
 
+/* ===== ツール一覧 ===== */
+
 .tool-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(13.75rem, 1fr));
+  gap: 1rem;
 }
 
 .tool-card {
   display: block;
   background: var(--card);
-  padding: 15px;
-  border-radius: 12px;
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: 1rem;
   color: inherit;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: 0.2s;
+  box-shadow: var(--shadow);
+  transition: .2s;
 }
 
 .tool-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-.1875rem);
 }
 
 .tool-card h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 .5rem;
   font-size: 1.1rem;
 }
 
 .tool-card p {
   margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.7;
+  font-size: .9rem;
+  color: var(--muted);
 }
 
 .tag {
-  font-size: 0.8rem;
-  opacity: 0.6;
+  font-size: .8rem;
+  opacity: .6;
 }
 
-/* ツール用検索 */
+/* ===== 検索 ===== */
+
 #search {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: .625rem;
+  padding: .625rem;
 }
 
 .filter {
   display: flex;
-  gap: 8px;
-  margin-bottom: 15px;
   flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
 }
 
-.attr { color: #fbbf24; }
-.str { color: #34d399; }
+/* ===== シンタックスカラー ===== */
+
+.attr {
+  color: #fbbf24;
+}
+
+.str {
+  color: #34d399;
+}
+
 .html-tag {
   display: inline !important;
   padding: 0 !important;
+  margin: 0 !important;
   border-radius: 0 !important;
   background: none !important;
   font-size: inherit !important;
   opacity: 1 !important;
 }
+
+/* ===== 共通 ===== */
 
 .is-hidden {
   display: none;
@@ -76,16 +91,28 @@
   color: #44f;
 }
 
+/* ===== エディター ===== */
+
 .pane-left,
 .pane-right {
   display: flex;
   flex-direction: column;
 }
 
+.pane-left {
+  flex: 4;
+}
+
+.pane-right {
+  flex: 6;
+}
+
 .area {
-  margin: 8px;
-  padding: 8px;
-  border: 1px solid #ccc;
+  margin: .5rem;
+  padding: .5rem;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--card);
 }
 
 .area + .area {
@@ -98,8 +125,8 @@
 }
 
 .area.is-titled .title {
-  margin-bottom: 8px;
-  font-size: 16px;
+  margin-bottom: .5rem;
+  font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -112,54 +139,50 @@
   margin-left: 0;
 }
 
-.pane-left {
-  flex: 4;
-}
-
 .area-editor {
   flex: 1;
 }
 
 .area-editor .controls {
-  margin-bottom: 8px;
-  font-size: 12px;
+  margin-bottom: .5rem;
+  font-size: .75rem;
 }
 
 .area-editor .input {
-  padding: 8px;
   width: 100%;
   height: 100%;
-  font-family: monospace;
+  padding: .5rem;
+  box-sizing: border-box;
   resize: none;
+  font-family: monospace;
 }
 
 .area-errors .errors {
-  padding: 8px;
-  max-height: 72px;
-  background-color: #eee;
-  font-size: 12px;
+  max-height: 4.5rem;
   overflow-y: auto;
-}
-
-.pane-right {
-  flex: 6;
+  padding: .5rem;
+  background: var(--bg);
+  border-radius: .5rem;
+  font-size: .75rem;
 }
 
 .area-controls .button {
-  padding: 2px 4px;
-  background: #fafafa;
-  border: 1px solid #aaa;
-  font-size: 14px;
+  padding: .125rem .25rem;
+  border: 1px solid var(--border);
+  border-radius: .375rem;
+  background: var(--card);
+  font-size: .875rem;
   cursor: pointer;
+  transition: .2s;
 }
 
 .area-controls .button:hover {
-  background: #f6f6f6;
+  filter: brightness(.97);
 }
 
 .area-controls .button.is-active {
   font-weight: 700;
-  background: #eee;
+  background: var(--border);
 }
 
 .area-pages {
@@ -178,160 +201,198 @@
 }
 
 .page-statistics h3 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   font-size: 1.5rem;
-  font-weight: 700;
 }
 
 .page-statistics h4 {
   margin-top: 1rem;
   font-size: 1.2rem;
-  font-weight: 700;
 }
 
 .page-statistics p {
   font-size: 1rem;
-  line-height: 1.4rem;
+  line-height: 1.4;
 }
 
 .page-statistics code {
   display: inline-block;
-  padding: 2px 4px;
-  font-size: 1rem;
-  background: #f7f7f7;
-  border: 1px solid #eee;
-  border-radius: 3px;
+  padding: .125rem .25rem;
+  border: 1px solid var(--border);
+  border-radius: .25rem;
+  background: var(--bg);
 }
 
 .page-statistics .stat-graph {
-  background: #fafafa;
-  border: 1px solid #f6f6f6;
+  border: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .page-statistics .stat-graph .grid line {
   stroke: #777;
 }
 
-/* 未読メッセージ */
+/* ===== チャット ===== */
+
 .unread {
   background: #fff3cd;
 }
 
-/* 既読ライン */
 .read-marker {
-  text-align: center;
-  font-size: 12px;
+  margin: .625rem 0;
   color: gray;
-  margin: 10px 0;
+  font-size: .75rem;
+  text-align: center;
 }
 
-/* メンション強調 */
 .mention {
+  padding: .125rem .25rem;
+  border-radius: .25rem;
   background: #ffe0f0;
   color: #d1006f;
-  padding: 2px 4px;
-  border-radius: 4px;
 }
+
+/* ===== TJAエディター ===== */
 
 #tja-input {
   width: 100%;
-  min-height: 500px; /* 大きめ */
-  padding: 12px;
+  min-height: 31.25rem;
+  padding: .75rem;
   box-sizing: border-box;
 
   font-family: monospace;
-  font-size: 18px; /* 文字大きめ */
+  font-size: 1.125rem;
   line-height: 1.6;
 
-  resize: both; /* 縦横サイズ変更可能 */
+  resize: both;
   overflow: auto;
 
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--card);
+  color: var(--text);
 }
 
-.midi-player{
-    max-width:1400px;
-    margin:auto;
+/* ===== MIDIプレイヤー ===== */
+
+.midi-player {
+  width: 100%;
+  max-width: 87.5rem;
+  margin: 0 auto;
 }
 
-.midi-upload{
-    display:block;
-    padding:32px;
-    border:2px dashed var(--main);
-    border-radius:12px;
-    text-align:center;
-    cursor:pointer;
+.midi-upload {
+  display: block;
+  padding: 2rem;
+  border: 2px dashed var(--link);
+  border-radius: .75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
 }
 
-.midi-upload input{
-    display:none;
+.midi-upload:hover {
+  background: rgba(37, 99, 235, .05);
 }
 
-.midi-buttons{
-    display:flex;
-    gap:10px;
-    margin-top:16px;
-    flex-wrap:wrap;
+.midi-upload input {
+  display: none;
 }
 
-.midi-seek{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-top:16px;
+.midi-buttons,
+.midi-toolbar {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.midi-toolbar{
-    display:flex;
-    gap:24px;
-    margin-bottom:16px;
-    flex-wrap:wrap;
+.midi-buttons {
+  gap: .625rem;
+  margin-top: 1rem;
 }
 
-#midi-roll-container{
-    position:relative;
-    height:600px;
-    overflow:auto;
-    border:1px solid var(--border);
+.midi-toolbar {
+  gap: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-#midi-piano-keys{
-    position:absolute;
-    left:0;
-    top:0;
-    z-index:2;
+.midi-seek {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: 1rem;
 }
 
-#midi-piano-roll{
-    position:absolute;
-    left:80px;
-    top:0;
-    z-index:1;
+#midi-roll-container {
+  position: relative;
+  height: 37.5rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--card);
+}
+
+#midi-piano-keys {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 2;
+}
+
+#midi-piano-roll {
+  position: absolute;
+  left: 5rem;
+  top: 0;
+  z-index: 1;
 }
 
 /* ===== 画像変換ツール ===== */
 
+.image-converter-settings {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
 .image-converter-preview {
-    text-align: center;
-    margin-top: 20px;
+  margin-top: 1.25rem;
+  text-align: center;
 }
 
 .image-converter-preview img {
-    max-width: 100%;
-    max-height: 420px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-}
-
-.image-converter-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  max-height: 26.25rem;
+  border: 1px solid var(--border);
+  border-radius: .75rem;
 }
 
 #download {
-    display: inline-block;
-    margin-left: 10px;
+  display: inline-block;
+  margin-left: .625rem;
+}
+
+/* ===== レスポンシブ ===== */
+
+@media (max-width: 48rem) {
+
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .midi-toolbar,
+  .midi-buttons,
+  .midi-seek {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #midi-roll-container {
+    height: 28rem;
+  }
+
+  #tja-input {
+    min-height: 22rem;
+    font-size: 1rem;
+  }
+
 }
