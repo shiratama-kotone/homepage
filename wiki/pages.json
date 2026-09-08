@@ -19,5 +19,15 @@
     "title":"音楽",
     "description":"音楽",
     "url":"/wiki/music/"
+  },
+ {
+    "title": "ボーカロイド楽曲",
+    "aliases": [
+      "ボカロ",
+      "ボカロ曲"
+    ],
+    "description": "ボカロ曲とは、音声合成ソフトで歌声を作った楽曲。",
+    "tags": ["ボカロ", "ヤマハ"],
+    "url": "/wiki/music/vocaloid/"
   }
 ]
