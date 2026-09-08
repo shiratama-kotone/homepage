@@ -29,5 +29,11 @@
     "description": "ボカロ曲とは、音声合成ソフトで歌声を作った楽曲。",
     "tags": ["ボカロ", "ヤマハ"],
     "url": "/wiki/music/vocaloid/"
+  },
+ {
+    "title": "可不",
+    "description": "音楽的同位体 可不",
+    "tags": ["音楽的同位体", "可不"],
+    "url": "/wiki/character/kafu.html"
   }
 ]
