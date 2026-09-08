@@ -56,8 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js")
-    .then(function() {
-      console.log("Service Worker registered");
-    });
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
+  });
 }
