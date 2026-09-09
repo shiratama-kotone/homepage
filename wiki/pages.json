@@ -35,5 +35,14 @@
     "description": "音楽的同位体 可不",
     "tags": ["音楽的同位体", "可不"],
     "url": "/wiki/character/kafu.html"
+  },
+ {
+    "title": "音楽的同位体プロジェクト",
+    "aliases": [
+      "音楽的同位体"
+    ],
+    "description": "音楽的同位体プロジェクト",
+    "tags": ["音楽的同位体", "KAMITSUBAKI STUDIO"],
+    "url": "/wiki/music/vocaloid/ongakuteki-doitai.html"
   }
 ]
