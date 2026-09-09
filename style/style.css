@@ -46,6 +46,11 @@ body {
   line-height: 1.8;
 }
 
+s {
+  text-decoration-style: double;
+}
+
+
 /* ===== レイアウト ===== */
 
 .content,
