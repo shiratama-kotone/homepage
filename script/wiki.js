@@ -91,7 +91,7 @@ function linkText(text) {
   return result;
 }
 
-// DOM走査（安全版）
+// DOM走査
 function walk(node) {
   if (node.nodeType === 3) {
     var text = node.nodeValue;
@@ -121,6 +121,11 @@ function walk(node) {
       tag === "STYLE" ||
       tag === "TEXTAREA"
     ) {
+      return;
+    }
+
+    // breadcrumbクラスを除外
+    if (node.classList.contains("breadcrumb")) {
       return;
     }
 
