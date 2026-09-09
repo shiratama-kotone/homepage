@@ -74,7 +74,7 @@
 <section>
 <h2>Wiki情報</h2>
 <ul>
-<li>総ページ数: 5</li>
+<li>総ページ数: <span id="page-count">読み込み中...</span></li>
 <li>最終更新: 2026/09/08</li>
 </ul>
 </section>
@@ -85,17 +85,31 @@
 
 <script src="/script/script.js"></script>
 <script>
-    document.getElementById("wiki-search")?.addEventListener("submit", e => {
-  e.preventDefault();
+  // 総ページ数を取得
+  fetch("/wiki/pages.json")
+    .then(function(res) {
+      return res.json();
+    })
+    .then(function(pages) {
+      document.getElementById("page-count").textContent = pages.length;
+    })
+    .catch(function() {
+      document.getElementById("page-count").textContent = "取得失敗";
+    });
 
-  var q = document.getElementById("searchInput").value.trim();
 
-  if (!q) return;
+  // Wiki検索
+  document.getElementById("wiki-search")?.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-  location.href =
-    "/wiki/search.html?q=" +
-    encodeURIComponent(q);
-});
+    var q = document.getElementById("searchInput").value.trim();
+
+    if (!q) return;
+
+    location.href =
+      "/wiki/search.html?q=" +
+      encodeURIComponent(q);
+  });
 </script>
 </body>
 </html>
