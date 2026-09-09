@@ -1,5 +1,6 @@
 var pageList = [];
 var pageMap = {};
+var linkedPages = new Set();
 
 function normalizePath(path) {
   return path
@@ -61,6 +62,11 @@ function linkText(text) {
           continue;
         }
 
+        // 同じリンク先は1回だけ
+        if (linkedPages.has(normalizePath(url))) {
+          continue;
+        }
+
         matched = name;
         break;
       }
@@ -68,8 +74,13 @@ function linkText(text) {
 
     if (matched) {
       var url2 = pageMap[matched];
+      var normalizedUrl = normalizePath(url2);
 
       result += `<a href="${url2}">${matched}</a>`;
+
+      // リンク済みとして記録
+      linkedPages.add(normalizedUrl);
+
       i += matched.length;
     } else {
       result += text[i];
@@ -124,6 +135,9 @@ function walk(node) {
 
 function autoLink(root) {
   if (root) {
+    // ページごとにリンク済み情報をリセット
+    linkedPages.clear();
+
     walk(root);
   }
 }
