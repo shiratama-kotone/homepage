@@ -66,10 +66,17 @@ if ("serviceWorker" in navigator) {
 document.querySelectorAll(".accordion").forEach(function (accordion) {
   const button = accordion.querySelector(".accordion-button");
   const icon = accordion.querySelector(".accordion-icon");
+  const content = accordion.querySelector(".accordion-content");
 
   button.addEventListener("click", function () {
-    accordion.classList.toggle("open");
-
-    icon.textContent = accordion.classList.contains("open") ? "−" : "+";
+    if (accordion.classList.contains("open")) {
+      content.style.height = "0px";
+      icon.textContent = "+";
+      accordion.classList.remove("open");
+    } else {
+      content.style.height = content.scrollHeight + "px";
+      icon.textContent = "−";
+      accordion.classList.add("open");
+    }
   });
 });

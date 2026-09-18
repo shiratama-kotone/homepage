@@ -80,10 +80,8 @@
 }
 
 .accordion-content {
-  display: none;
-  padding: 8px 0 8px 29px;
-}
-
-.accordion.open .accordion-content {
-  display: block;
+  height: 0;
+  overflow: hidden;
+  padding: 0 0 0 29px;
+  transition: height 0.25s ease;
 }
