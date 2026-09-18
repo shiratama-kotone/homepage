@@ -62,3 +62,14 @@ if ("serviceWorker" in navigator) {
     }
   });
 }
+
+document.querySelectorAll(".accordion").forEach(function (accordion) {
+  const button = accordion.querySelector(".accordion-button");
+  const icon = accordion.querySelector(".accordion-icon");
+
+  button.addEventListener("click", function () {
+    accordion.classList.toggle("open");
+
+    icon.textContent = accordion.classList.contains("open") ? "−" : "+";
+  });
+});
