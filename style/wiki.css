@@ -57,6 +57,7 @@
 }
 
 .accordion-button {
+  color: var(--text);
   display: flex;
   align-items: center;
   padding: 0;
