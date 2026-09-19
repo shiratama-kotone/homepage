@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ゆゆゆとは</title>
 
 <link rel="stylesheet" href="/style/style.css">
@@ -30,6 +28,7 @@
     border-radius: 10px;
     object-fit: cover;
     display: none;
+    flex-shrink: 0;
 }
 
 #status-cast .status-text {
@@ -50,30 +49,28 @@
     font-size: 0.9em;
 }
 
-#status-cast .status-time {
+#status-cast .music-position {
     margin-top: 8px;
-    font-size: 0.8em;
-    opacity: 0.6;
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
 }
 
-#status-cast .status-error {
+#status-cast .status-time {
+    margin-top: 5px;
+    font-size: 0.8em;
     opacity: 0.6;
 }
 </style>
 
-</head>
-
 <!-- Google tag (gtag.js) -->
-
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGM94MF3RY"></script>
-
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-
 gtag('config', 'G-XGM94MF3RY');
 </script>
+</head>
 
 <body>
 
@@ -89,36 +86,8 @@ ATM擦ったり洗濯機叩いたり太鼓叩いたりしてる14歳。<br>
 でもなんだかんだ元気。
 </p>
 
-<!-- 現在の状態 -->
-
-<div id="status-cast">
-
-<div class="status-header">
-
-    <img id="status-app-icon" class="app-icon" alt="アプリアイコン">
-
-    <div class="status-text">
-
-        <div id="status-app-name" class="app-name">
-            読み込み中...
-        </div>
-
-        <div id="status-music-title" class="music-title">
-        </div>
-
-        <div id="status-music-artist" class="music-artist">
-        </div>
-
-    </div>
-
-</div>
-
-<div id="status-time" class="status-time">
-</div>
-
-</div>
-
 <h2>趣味</h2>
+
 <p>
 音ゲー好き。<br>
 CHUNITHMとか太鼓の達人ばっかりやってる。<br>
@@ -126,13 +95,15 @@ BEMANIとかjubeatも気になってる。
 </p>
 
 <h2>できること</h2>
+
 <p>
-    AI使えるよ。<br>
-    CHUNITHMもLEVEL8,9,10,くらいのEXPERTならできる。<br>
-    太鼓の達人はふつうとか易しいむずかしいならできる。<br>
+AI使えるよ。<br>
+CHUNITHMもLEVEL8,9,10,くらいのEXPERTならできる。<br>
+太鼓の達人はふつうとか易しいむずかしいならできる。
 </p>
 
 <h2>すきなもの</h2>
+
 <p>
 すきないろは、#ffc1e0かな。<br>
 すきなひとは、██だよ。<br>
@@ -140,17 +111,20 @@ BEMANIとかjubeatも気になってる。
 </p>
 
 <h2>にがてなもの</h2>
+
 <p>
 野菜とか。<br>
 あと人付き合いもにがて。
 </p>
 
 <h2>つくってるもの</h2>
+
 <p>
 掲示板とかこのサイトとかを<b>AIに頼りまくって</b>つくってる。
 </p>
 
 <h2>SNSとか</h2>
+
 <p>
 <a href="https://youtube.com/@shiratama_kotone">Youtube</a><br>
 <a href="https://x.com/shiratamakotone">Twitter</a><br>
@@ -163,6 +137,7 @@ BEMANIとかjubeatも気になってる。
 </p>
 
 <h2>フレンドコード</h2>
+
 <p>
 CHUNITHM: 126488732118490<br>
 maimai: 101580330058775<br>
@@ -171,6 +146,53 @@ maimai: 101580330058775<br>
 太鼓番: 972987645226
 </p>
 
+<h2>現在の状態</h2>
+
+<div id="status-cast">
+
+    <div class="status-header">
+
+        <img
+            id="status-app-icon"
+            class="app-icon"
+            alt="アプリアイコン"
+        >
+
+        <div class="status-text">
+
+            <div
+                id="status-app-name"
+                class="app-name"
+            >
+                読み込み中...
+            </div>
+
+            <div
+                id="status-music-title"
+                class="music-title"
+            ></div>
+
+            <div
+                id="status-music-artist"
+                class="music-artist"
+            ></div>
+
+        </div>
+
+    </div>
+
+    <div
+        id="status-music-position"
+        class="music-position"
+    ></div>
+
+    <div
+        id="status-time"
+        class="status-time"
+    ></div>
+
+</div>
+
 </div>
 
 <div id="footer"></div>
@@ -178,137 +200,311 @@ maimai: 101580330058775<br>
 <script src="/script/script.js"></script>
 
 <script>
-/*
- * Status Cast
- * 5秒ごとに現在のアプリ・再生中の曲を取得
- */
+const STATUS_URL =
+    "https://status-cast-server.onrender.com/status";
 
-const STATUS_URL = "https://status-cast-server.onrender.com/status";
+const appIcon =
+    document.getElementById("status-app-icon");
 
-const appIcon = document.getElementById("status-app-icon");
-const appName = document.getElementById("status-app-name");
-const musicTitle = document.getElementById("status-music-title");
-const musicArtist = document.getElementById("status-music-artist");
-const statusTime = document.getElementById("status-time");
+const appName =
+    document.getElementById("status-app-name");
+
+const musicTitle =
+    document.getElementById("status-music-title");
+
+const musicArtist =
+    document.getElementById("status-music-artist");
+
+const musicPosition =
+    document.getElementById("status-music-position");
+
+const statusTime =
+    document.getElementById("status-time");
 
 
+// 曲の情報
+let currentSongId = "";
+let currentPositionMs = 0;
+let currentDurationMs = 0;
+
+// APIを取得した時刻
+let lastReceivedAt = 0;
+
+
+// 時間を 0:00 形式にする
+function formatTime(ms) {
+
+    if (!Number.isFinite(ms) || ms < 0) {
+        return "0:00";
+    }
+
+    const totalSeconds =
+        Math.floor(ms / 1000);
+
+    const minutes =
+        Math.floor(totalSeconds / 60);
+
+    const seconds =
+        totalSeconds % 60;
+
+    return (
+        minutes +
+        ":" +
+        String(seconds).padStart(2, "0")
+    );
+}
+
+
+// 再生位置を画面に表示
+function updateMusicPosition() {
+
+    if (!lastReceivedAt) {
+        return;
+    }
+
+    let position =
+        currentPositionMs +
+        (Date.now() - lastReceivedAt);
+
+    // 曲の長さを超えないようにする
+    if (currentDurationMs > 0) {
+        position =
+            Math.min(position, currentDurationMs);
+    }
+
+    musicPosition.textContent =
+        formatTime(position) +
+        " / " +
+        formatTime(currentDurationMs);
+}
+
+
+// APIから状態を取得
 async function updateStatus() {
 
     try {
 
-        const response = await fetch(STATUS_URL, {
-            method: "GET",
-            cache: "no-store"
-        });
+        const response =
+            await fetch(
+                STATUS_URL,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
 
         if (!response.ok) {
-            throw new Error("HTTP " + response.status);
+            throw new Error(
+                "HTTP " + response.status
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        /*
-         * アプリ情報
-         */
+
+        // =========================
+        // アプリ
+        // =========================
 
         if (data.app) {
 
             appName.textContent =
-                data.app.name || "不明なアプリ";
-
-            /*
-             * Base64のアイコンを表示
-             */
+                data.app.name ||
+                "不明なアプリ";
 
             if (data.app.icon) {
 
                 appIcon.src =
-                    "data:image/png;base64," + data.app.icon;
+                    "data:image/png;base64," +
+                    data.app.icon;
 
-                appIcon.style.display = "block";
+                appIcon.style.display =
+                    "block";
 
             } else {
 
                 appIcon.removeAttribute("src");
-                appIcon.style.display = "none";
 
+                appIcon.style.display =
+                    "none";
             }
 
         } else {
 
-            appName.textContent = "アプリ情報なし";
+            appName.textContent =
+                "アプリ情報なし";
 
             appIcon.removeAttribute("src");
-            appIcon.style.display = "none";
+
+            appIcon.style.display =
+                "none";
         }
 
 
-        /*
-         * 音楽情報
-         */
+        // =========================
+        // 音楽
+        // =========================
 
-        if (data.music && data.music.title) {
+        if (
+            data.music &&
+            data.music.title
+        ) {
 
             musicTitle.textContent =
-                "♪ " + data.music.title;
+                "♪ " +
+                data.music.title;
 
-            if (data.music.artist) {
+            musicArtist.textContent =
+                data.music.artist || "";
 
-                musicArtist.textContent =
-                    data.music.artist;
+
+            const newPosition =
+                Number(data.music.positionMs) || 0;
+
+            const newDuration =
+                Number(data.music.durationMs) || 0;
+
+
+            /*
+             * 曲を識別するための情報。
+             *
+             * title + artist + duration
+             * が変わったら別の曲として扱う。
+             */
+            const newSongId =
+                [
+                    data.music.title || "",
+                    data.music.artist || "",
+                    newDuration
+                ].join("|");
+
+
+            if (newSongId !== currentSongId) {
+
+                // 曲が変わった
+                currentSongId =
+                    newSongId;
+
+                /*
+                 * positionMsはAPI上では
+                 * 大きな値になっているため、
+                 * 前回との差分を使って
+                 * ブラウザ側の再生位置を進める。
+                 */
+                currentPositionMs = 0;
 
             } else {
 
-                musicArtist.textContent = "";
+                /*
+                 * positionMsが約5000msずつ
+                 * 増えているので、
+                 * 前回との差分を再生位置として加算。
+                 */
+                const difference =
+                    newPosition -
+                    (currentPositionMs +
+                     lastPositionBase);
 
+                if (
+                    Number.isFinite(difference) &&
+                    difference >= 0 &&
+                    difference < 60000
+                ) {
+                    currentPositionMs +=
+                        difference;
+                }
             }
+
+
+            // 初回取得時
+            if (!lastPositionBase) {
+
+                lastPositionBase =
+                    newPosition;
+
+                currentPositionMs = 0;
+
+            } else {
+
+                lastPositionBase =
+                    newPosition;
+            }
+
+
+            currentDurationMs =
+                newDuration;
+
+            lastReceivedAt =
+                Date.now();
+
+            updateMusicPosition();
 
         } else {
 
             musicTitle.textContent = "";
+
             musicArtist.textContent = "";
+
+            musicPosition.textContent = "";
         }
 
 
-        /*
-         * 最終取得時刻
-         */
-
-        const now = new Date();
-
         statusTime.textContent =
             "最終更新: " +
-            now.toLocaleTimeString("ja-JP");
+            new Date().toLocaleTimeString(
+                "ja-JP"
+            );
+
 
     } catch (error) {
 
-        console.error("Status Cast取得エラー:", error);
+        console.error(
+            "Status Cast取得エラー:",
+            error
+        );
 
-        appName.textContent = "現在の状態を取得できません";
+        appName.textContent =
+            "現在の状態を取得できません";
 
         musicTitle.textContent = "";
+
         musicArtist.textContent = "";
 
+        musicPosition.textContent = "";
+
         appIcon.removeAttribute("src");
-        appIcon.style.display = "none";
+
+        appIcon.style.display =
+            "none";
 
         statusTime.textContent =
             "サーバーに接続できません";
-
     }
 }
 
 
-/*
- * 最初にすぐ取得
- */
+// positionMsの前回値
+let lastPositionBase = 0;
+
+
+// 最初の取得
 updateStatus();
 
 
-/*
- * 5秒ごとに更新
- */
-setInterval(updateStatus, 5000);
+// 5秒ごとにAPIを取得
+setInterval(
+    updateStatus,
+    5000
+);
+
+
+// API取得の間も表示を更新
+// 100msごとに更新するのでかなり滑らか
+setInterval(
+    updateMusicPosition,
+    100
+);
 
 </script>
 
