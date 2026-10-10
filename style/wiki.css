@@ -102,10 +102,10 @@
 }
 
 .sexual-warning svg {
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
   flex-shrink: 0;
-  fill: #f3c6cf;
+  fill: #d98b9b;
 }
 
 .sexual-warning-content {
