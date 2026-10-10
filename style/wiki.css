@@ -89,3 +89,30 @@
   padding: 0 0 0 29px;
   transition: height 0.25s ease;
 }
+
+.sexual-warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff0f3;
+  border: 1px solid #f3c6cf;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+
+.sexual-warning svg {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  fill: #f3c6cf;
+}
+
+.sexual-warning-content {
+  min-width: 0;
+}
+
+.sexual-warning-content strong {
+  display: block;
+  margin-bottom: 4px;
+}

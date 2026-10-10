@@ -176,3 +176,17 @@ document.querySelectorAll(".accordion").forEach(function (accordion) {
     }
   });
 });
+
+document.querySelectorAll(".sexual-warning").forEach(el => {
+  el.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 -960 960 960"
+         aria-hidden="true">
+      <path d="m40-120 440-760 440 760H40Zm115.33-66.67h649.34L480-746.67l-324.67 560Zm351.17-60.95q9.5-9.61 9.5-23.83 0-14.22-9.62-23.72-9.61-9.5-23.83-9.5-14.22 0-23.72 9.62-9.5 9.62-9.5 23.83 0 14.22 9.62 23.72 9.62 9.5 23.83 9.5 14.22 0 23.72-9.62ZM449.33-352H516v-216h-66.67v216ZM480-466.67Z"/>
+    </svg>
+    <div class="sexual-warning-content">
+      <strong>注意</strong>
+      このページには、性的な表現や描写、性的な内容を含む記述があります。閲覧する際はご注意ください。
+    </div>
+  `;
+});
