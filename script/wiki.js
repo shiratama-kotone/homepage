@@ -152,3 +152,27 @@ window.addEventListener("DOMContentLoaded", async function () {
   await loadPages();
   autoLink(document.querySelector(".content"));
 });
+
+const searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#1f1f1f"><path d="M792-120.67 532.67-380q-30 25.33-69.67 39.67Q423.33-326 378.67-326q-108.34 0-183.5-75.17Q120-476.33 120-583.33t75.17-182.17q75.16-75.17 182.83-75.17 107 0 181.83 75.17 74.84 75.17 74.84 182.17 0 43.33-14 83-14 39.66-40.67 73l260 258.66-48 48Zm-414-272q79 0 134.5-55.83T568-583.33q0-79-55.5-134.84Q457-774 378-774q-79.67 0-135.5 55.83-55.83 55.84-55.83 134.84T242.5-448.5q55.83 55.83 135.5 55.83Z"/></svg>`;
+
+const minusIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#1f1f1f"><path d="M260-448h440.67v-66.67H260V-448Zm-73.33 328q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h586.66q27 0 46.84 19.83Q840-800.33 840-773.33v586.66q0 27-19.83 46.84Q800.33-120 773.33-120H186.67Zm0-66.67h586.66v-586.66H186.67v586.66Zm0-586.66v586.66-586.66Z"/></svg>`;
+
+document.querySelectorAll(".accordion").forEach(function (accordion) {
+  const button = accordion.querySelector(".accordion-button");
+  const icon = accordion.querySelector(".accordion-icon");
+  const content = accordion.querySelector(".accordion-content");
+
+  icon.innerHTML = searchIcon;
+
+  button.addEventListener("click", function () {
+    if (accordion.classList.contains("open")) {
+      content.style.height = "0px";
+      icon.innerHTML = searchIcon;
+      accordion.classList.remove("open");
+    } else {
+      accordion.classList.add("open");
+      content.style.height = content.scrollHeight + "px";
+      icon.innerHTML = minusIcon;
+    }
+  });
+});
