@@ -46,6 +46,12 @@ body {
   line-height: 1.8;
 }
 
+input,
+textarea,
+[contenteditable="true"] {
+  caret-color: #f9d1e0;
+}
+
 s {
   text-decoration-style: double;
 }
