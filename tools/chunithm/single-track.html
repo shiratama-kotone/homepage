@@ -10,39 +10,58 @@
 <body>
     <div id="header"></div>
 
-    <main>
-        <div class="single-track">
-            <h1>CHUNITHM 単曲レート計算機</h1>
+    <main class="content">
+        <h1>CHUNITHM 単曲レート計算機</h1>
 
-            <div class="field">
+        <form id="calculator">
+            <div>
                 <label for="constant">譜面定数</label>
-                <input id="constant" type="number" min="5.01" max="20" step="0.01" placeholder="例：15.0">
+                <input
+                    type="number"
+                    id="constant"
+                    min="5.01"
+                    max="20"
+                    step="0.01"
+                    placeholder="例：15.0"
+                    required
+                >
             </div>
 
-            <div class="field">
+            <div>
                 <label for="score">スコア</label>
-                <input id="score" type="number" min="0" max="1010000" placeholder="例：1009000">
+                <input
+                    type="number"
+                    id="score"
+                    min="0"
+                    max="1009000"
+                    step="1"
+                    placeholder="例：1009000"
+                    required
+                >
             </div>
 
-            <section class="result" aria-live="polite">
-                <div>単曲レート</div>
-                <output class="result-value" id="rating">---</output>
-                <div class="result-detail" id="rank">譜面定数とスコアを入力</div>
-            </section>
+            <button type="submit">計算する</button>
+            <button type="reset">クリア</button>
+        </form>
 
-            <p class="hint">
-                ボーダー間は直線補間で計算。
-                500,000点以下は0、
-                1,009,000点以上は譜面定数＋2.15で固定。
+        <section class="card">
+            <h2>計算結果</h2>
+            <output id="rating">---</output>
+            <p id="rank" class="description">
+                譜面定数とスコアを入力してね
             </p>
+        </section>
 
-            <button type="button" id="reset">入力をクリア</button>
-        </div>
+        <p class="description">
+            500,000点以下は0。
+            1,009,000点以上は譜面定数＋2.15で固定。
+            ボーダー間は直線補間で計算。
+        </p>
     </main>
 
     <div id="footer"></div>
 
-    <script src="/script/chunithm/single-track.js"></script>
+    <script src="/script/tools/chunithm/single-track.js"></script>
     <script src="/script/script.js"></script>
 </body>
 </html>

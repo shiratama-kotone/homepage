@@ -1,5 +1,6 @@
 
 (() => {
+    const form = document.getElementById("calculator");
     const constantInput = document.getElementById("constant");
     const scoreInput = document.getElementById("score");
     const ratingOutput = document.getElementById("rating");
@@ -46,37 +47,29 @@
     }
 
     function getRank(score) {
-        if (score >= 1009000) return "SSS+";
-        if (score >= 1007500) return "SSS";
-        if (score >= 1005000) return "SS+";
-        if (score >= 1000000) return "SS";
-        if (score >= 990000) return "S+";
-        if (score >= 975000) return "S";
-        if (score >= 950000) return "AAA";
-        if (score >= 925000) return "AA";
-        if (score >= 900000) return "A";
-        if (score >= 800000) return "BBB";
-        if (score >= 500000) return "C";
+        for (let i = borders.length - 1; i >= 0; i--) {
+            if (score >= borders[i].score) {
+                return borders[i].name;
+            }
+        }
+
         return "ランクなし";
     }
 
-    function update() {
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+
         const constant = Number(constantInput.value);
         const score = Number(scoreInput.value);
 
         if (
-            constantInput.value === "" ||
-            scoreInput.value === "" ||
             !Number.isFinite(constant) ||
             !Number.isFinite(score) ||
-            constant <= 0 ||
+            constant <= 1 ||
             constant > 20 ||
             score < 0 ||
-            score > 1010000
+            score > 1009000
         ) {
-            ratingOutput.textContent = "---";
-            rankOutput.textContent =
-                "譜面定数と0～1,010,000点を入力";
             return;
         }
 
@@ -84,15 +77,11 @@
 
         ratingOutput.textContent = rating.toFixed(4);
         rankOutput.textContent =
-            `${getRank(score)} ／ 小数第2位表示：${rating.toFixed(2)}`;
-    }
+            `${getRank(score)} ／ 小数第2位：${rating.toFixed(2)}`;
+    });
 
-    constantInput.addEventListener("input", update);
-    scoreInput.addEventListener("input", update);
-
-    document.getElementById("reset").addEventListener("click", () => {
-        constantInput.value = "";
-        scoreInput.value = "";
-        update();
+    form.addEventListener("reset", () => {
+        ratingOutput.textContent = "---";
+        rankOutput.textContent = "譜面定数とスコアを入力してね";
     });
 })();
