@@ -84,7 +84,7 @@
             !validConstant(constant) ||
             !Number.isInteger(score) ||
             score < 0 ||
-            score > 1009000
+            score > 1010000
         ) {
             ratingOutput.textContent = "---";
             rankOutput.textContent = "入力値を確認してね";
