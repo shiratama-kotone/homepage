@@ -1,223 +1,508 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CHUNITHM RATING</title>
-  <link rel="stylesheet" href="/style/style.css">
-  <link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
-</head>
-<body>
-  <div id="header"></div>
+  <title>CHUNITHM レート計算</title>
 
-  <main class="content">
-    <h1>CHUNITHM RATING</h1>
+  <link rel="stylesheet" href="/style/style.css">
+
+  <style>
+    #chuni-rating {
+      --chuni-border: var(--border, #dedee8);
+      --chuni-muted: var(--muted, #707080);
+      --chuni-card: var(--card, #ffffff);
+      --chuni-bg: var(--bg, #f7f7fb);
+      --chuni-text: var(--text, #252536);
+      color: var(--chuni-text);
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    #chuni-rating * {
+      box-sizing: border-box;
+    }
+
+    #chuni-rating .card {
+      background: var(--chuni-card);
+      border: 1px solid var(--chuni-border);
+      border-radius: 12px;
+      padding: 18px;
+      margin: 14px 0;
+    }
+
+    #chuni-rating h1,
+    #chuni-rating h2,
+    #chuni-rating h3 {
+      margin-top: 0;
+    }
+
+    #chuni-rating .description,
+    #chuni-rating .muted {
+      color: var(--chuni-muted);
+      font-size: 0.9em;
+    }
+
+    #chuni-rating .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    #chuni-rating .profile-item {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--chuni-border);
+      border-radius: 10px;
+      background: var(--chuni-bg);
+    }
+
+    #chuni-rating .profile-label {
+      display: block;
+      color: var(--chuni-muted);
+      font-size: 0.82em;
+      margin-bottom: 5px;
+    }
+
+    #chuni-rating .profile-value {
+      display: block;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+      font-size: 1.15em;
+    }
+
+    #chuni-rating #playerRating {
+      font-size: 1.65em;
+    }
+
+    #chuni-rating .rating-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0;
+    }
+
+    #chuni-rating .tab {
+      flex: 1 1 120px;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid var(--chuni-border);
+      border-radius: 8px;
+      background: var(--chuni-card);
+      color: var(--chuni-text);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    #chuni-rating .tab.active {
+      background: var(--link, #7c57c2);
+      border-color: var(--link, #7c57c2);
+      color: #fff;
+    }
+
+    #chuni-rating .panel[hidden] {
+      display: none !important;
+    }
+
+    #chuni-rating .panel {
+      min-width: 0;
+    }
+
+    #chuni-rating .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    #chuni-rating .section-heading h2 {
+      margin: 0;
+    }
+
+    #chuni-rating .count {
+      color: var(--chuni-muted);
+      white-space: nowrap;
+      font-size: 0.9em;
+    }
+
+    #chuni-rating .score-list,
+    #chuni-rating #manualList,
+    #chuni-rating #allRecords {
+      display: grid;
+      gap: 8px;
+    }
+
+    #chuni-rating .score-list > div,
+    #chuni-rating #manualList > div,
+    #chuni-rating #allRecords > div {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--chuni-border);
+      border-radius: 9px;
+      background: var(--chuni-card);
+    }
+
+    #chuni-rating .score-list img,
+    #chuni-rating #manualList img,
+    #chuni-rating #allRecords img {
+      display: block;
+      width: 46px;
+      height: 46px;
+      border-radius: 5px;
+      object-fit: cover;
+      background: var(--chuni-bg);
+      color: var(--chuni-muted);
+      font-size: 10px;
+    }
+
+    #chuni-rating .score-list strong,
+    #chuni-rating #manualList strong,
+    #chuni-rating #allRecords strong {
+      display: block;
+      overflow-wrap: anywhere;
+      line-height: 1.4;
+    }
+
+    #chuni-rating .score-list p,
+    #chuni-rating #manualList p,
+    #chuni-rating #allRecords p {
+      margin: 3px 0 0;
+      font-size: 0.85em;
+    }
+
+    #chuni-rating .score-list > div > p,
+    #chuni-rating #allRecords > div > p {
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    #chuni-rating #manualList > div {
+      grid-template-columns: 46px minmax(0, 1fr) auto;
+    }
+
+    #chuni-rating button,
+    #chuni-rating input,
+    #chuni-rating select {
+      font: inherit;
+    }
+
+    #chuni-rating button:not(.tab) {
+      padding: 8px 13px;
+      border: 1px solid var(--chuni-border);
+      border-radius: 7px;
+      background: var(--chuni-card);
+      color: var(--chuni-text);
+      cursor: pointer;
+    }
+
+    #chuni-rating button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    #chuni-rating input,
+    #chuni-rating select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--chuni-border);
+      border-radius: 7px;
+      background: var(--chuni-card);
+      color: var(--chuni-text);
+    }
+
+    #chuni-rating label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+
+    #chuni-rating .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 14px;
+    }
+
+    #chuni-rating .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    #chuni-rating .search-results {
+      display: grid;
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    #chuni-rating .search-results button {
+      width: 100%;
+      text-align: left;
+    }
+
+    #chuni-rating .error-box {
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid #e4a0ad;
+      border-radius: 9px;
+      background: #fff0f3;
+      color: #522b34;
+    }
+
+    #chuni-rating .error-box h2 {
+      margin: 0 0 8px;
+      font-size: 1.05em;
+    }
+
+    #chuni-rating .error-box p {
+      margin: 6px 0;
+    }
+
+    #chuni-rating .error-box pre {
+      max-height: 340px;
+      overflow: auto;
+      padding: 10px;
+      border-radius: 6px;
+      background: #fff;
+      color: #333;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 0.82em;
+    }
+
+    #chuni-rating .status {
+      min-height: 1.4em;
+      color: var(--chuni-muted);
+      font-size: 0.9em;
+    }
+
+    #chuni-rating .empty-note {
+      color: var(--chuni-muted);
+      padding: 12px 0;
+    }
+
+    @media (max-width: 650px) {
+      #chuni-rating .card {
+        padding: 13px;
+      }
+
+      #chuni-rating .profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #chuni-rating .score-list > div,
+      #chuni-rating #manualList > div,
+      #chuni-rating #allRecords > div {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 9px;
+      }
+
+      #chuni-rating .score-list > div > p,
+      #chuni-rating #allRecords > div > p {
+        grid-column: 2;
+        text-align: left;
+        margin-top: -5px;
+      }
+
+      #chuni-rating #manualList button {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      #chuni-rating .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #chuni-rating .tab {
+        flex: 1 1 calc(50% - 8px);
+      }
+
+      #chuni-rating .section-heading {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="content" id="chuni-rating">
+    <h1>CHUNITHM レート計算</h1>
     <p class="description">
-      スコアを記録して、自分のレートを計算できるツール
+      ChuniSupportのユーザーデータと手動入力したスコアをまとめて、BEST 30・NEW 20を計算するよ。
     </p>
 
-    <section class="card">
-      <h2>レート</h2>
-      <p class="description">手動入力・ChuniSupportから取得した記録をまとめて計算するよ。</p>
-
-      <div>
-        <span class="note">PLAYER</span>
-        <p id="playerName">手動入力モード</p>
+    <section class="card" aria-label="プレイヤー情報">
+      <div class="profile-grid">
+        <div class="profile-item">
+          <span class="profile-label">プレイヤー</span>
+          <span class="profile-value" id="playerName">手動入力モード</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">RATING（BEST30＋NEW20）</span>
+          <span class="profile-value" id="playerRating">0.00</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">レベル</span>
+          <span class="profile-value" id="playerLevel">--</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">最終プレイ</span>
+          <span class="profile-value" id="lastPlayed">--</span>
+        </div>
       </div>
-
-      <div>
-        <span class="note">RATING</span>
-        <h2 id="playerRating">--.--</h2>
-      </div>
-
-      <div>
-        <span class="note">プレイヤーレベル</span>
-        <p id="playerLevel">--</p>
-      </div>
-
-      <div>
-        <span class="note">最終プレイ</span>
-        <p id="lastPlayed">--</p>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>楽曲データ</h2>
       <p class="description">
-        曲名・難易度・譜面定数を取得するよ。ユーザーデータとは別に取得できるよ。
-      </p>
-
-      <button type="button" id="loadSongsBtn">楽曲データを取得</button>
-      <p id="songsStatus" class="description" aria-live="polite">
-        楽曲データは未取得だよ。
+        RATINGはBEST 30枠＋NEW 20枠の合計50枠で計算。記録がない枠は0として扱うよ。
       </p>
     </section>
 
-    <section class="card">
-      <h2>ChuniSupport連携</h2>
-      <p class="description">
-        ユーザーデータを取り込みたい場合だけ使ってね。手動入力だけでも利用できるよ。
-      </p>
+    <section class="card" aria-label="データ取得">
+      <h2>データ取得</h2>
 
-      <div>
-        <label for="username">ChuniSupportユーザー名</label>
-        <input id="username" autocomplete="username" placeholder="ユーザー名">
+      <h3>楽曲データ</h3>
+      <p class="description">曲名・譜面定数などの取得。ユーザーデータとは別に取得できるよ。</p>
+      <div class="button-row">
+        <button type="button" id="loadSongsBtn">楽曲データを取得</button>
       </div>
+      <p class="status" id="songsStatus" aria-live="polite">まだ取得していないよ。</p>
 
-      <div>
-        <label for="token">APIトークン</label>
-        <input id="token" type="password" autocomplete="off" placeholder="APIトークン">
+      <hr>
+
+      <h3>ユーザーデータ（ChuniSupport）</h3>
+      <div class="form-grid">
+        <div>
+          <label for="username">ユーザー名</label>
+          <input id="username" type="text" autocomplete="username" placeholder="ユーザー名">
+        </div>
+        <div>
+          <label for="token">APIトークン</label>
+          <input id="token" type="password" autocomplete="off" placeholder="APIトークン">
+        </div>
       </div>
-
-      <p>
+      <div class="button-row">
         <button type="button" id="loadBtn">ユーザーデータを取得</button>
         <button type="button" id="saveSettingsBtn">設定を保存</button>
-        <button type="button" id="clearTokenBtn">トークンを消去</button>
-      </p>
-
-      <p id="loadStatus" class="description" aria-live="polite">
-        ChuniSupport未連携。手動入力で利用できるよ。
-      </p>
+        <button type="button" id="clearTokenBtn">保存トークンを消去</button>
+      </div>
+      <p class="status" id="loadStatus" aria-live="polite">ユーザーデータは未取得だよ。</p>
     </section>
 
-    <section id="errorBox" class="card" hidden role="alert">
-      <h2 id="errorTitle">エラー</h2>
+    <section class="error-box" id="errorBox" hidden aria-live="polite">
+      <h2 id="errorTitle">取得エラー</h2>
       <p id="errorSummary"></p>
-      <button type="button" id="errorDetailsBtn">詳しく見る</button>
-
+      <div class="button-row">
+        <button type="button" id="errorDetailsBtn">詳しく見る</button>
+        <button type="button" id="copyErrorBtn">エラー内容をコピー</button>
+      </div>
       <div id="errorDetails" hidden>
         <pre id="errorRaw"></pre>
-        <button type="button" id="copyErrorBtn">エラー詳細をコピー</button>
       </div>
     </section>
 
-    <nav>
-      <button type="button" class="tab active" data-tab="frames">BEST / NEW</button>
-      <button type="button" class="tab" data-tab="manual">手動スコア入力</button>
+    <nav class="rating-tabs" aria-label="表示切り替え">
+      <button type="button" class="tab active" data-tab="rating">BEST・NEW</button>
+      <button type="button" class="tab" data-tab="input">スコア入力</button>
       <button type="button" class="tab" data-tab="records">全スコア</button>
+      <button type="button" class="tab" data-tab="export">画像出力</button>
     </nav>
 
-    <section class="panel active" id="panel-frames">
+    <section class="panel active" id="panel-rating">
       <section class="card">
-        <h2>BEST 30</h2>
-        <p id="bestCount" class="description">0 / 30</p>
-        <div id="bestList">
-          <p class="description">まだ記録がないよ。</p>
+        <div class="section-heading">
+          <h2>BEST 30</h2>
+          <span class="count" id="bestCount">0 / 30</span>
+        </div>
+        <div class="score-list" id="bestList">
+          <p class="empty-note">まだ記録がないよ。</p>
         </div>
       </section>
 
       <section class="card">
-        <h2>NEW 20</h2>
-        <p id="newCount" class="description">0 / 20</p>
-        <div id="newList">
-          <p class="description">まだ記録がないよ。</p>
+        <div class="section-heading">
+          <h2>NEW 20</h2>
+          <span class="count" id="newCount">0 / 20</span>
         </div>
-      </section>
-
-      <section class="card">
-        <h2>画像出力</h2>
-        <p class="description">
-          BEST30・NEW20を1枚のPNG画像にまとめるよ。
-        </p>
-        <button type="button" id="exportImageBtn">PNG画像を保存</button>
-        <p id="exportStatus" class="description"></p>
+        <div class="score-list" id="newList">
+          <p class="empty-note">まだ記録がないよ。</p>
+        </div>
       </section>
     </section>
 
-    <section class="panel" id="panel-manual" hidden>
+    <section class="panel" id="panel-input" hidden>
       <section class="card">
-        <h2>スコアを手動で追加</h2>
+        <h2>スコアを手動入力</h2>
 
-        <div>
-          <label for="songSearch">楽曲を検索</label>
-          <input
-            id="songSearch"
-            placeholder="楽曲データを取得すると検索できるよ"
-            autocomplete="off"
-          >
-          <div id="searchResults" hidden></div>
+        <label for="songSearch">楽曲検索</label>
+        <input id="songSearch" type="search" placeholder="先に楽曲データを取得してね" autocomplete="off">
+        <div class="search-results" id="searchResults" hidden></div>
+
+        <p class="description" id="selectedSong">楽曲が選択されていないよ。</p>
+
+        <div class="form-grid">
+          <div>
+            <label for="difficulty">難易度</label>
+            <select id="difficulty">
+              <option value="">楽曲を選択してね</option>
+            </select>
+          </div>
+          <div>
+            <label for="manualConst">譜面定数</label>
+            <input id="manualConst" type="number" min="1" max="20" step="0.1" placeholder="譜面定数">
+          </div>
+          <div>
+            <label for="manualScore">スコア</label>
+            <input id="manualScore" type="number" min="0" max="1010000" step="1" placeholder="例: 1000000">
+          </div>
+          <div>
+            <label for="manualDate">プレイ日（任意）</label>
+            <input id="manualDate" type="date">
+          </div>
         </div>
 
-        <p id="selectedSong" class="description">
-          楽曲が選択されていないよ。
-        </p>
-
-        <div>
-          <label for="difficulty">難易度</label>
-          <select id="difficulty">
-            <option value="BASIC">BASIC</option>
-            <option value="ADVANCED">ADVANCED</option>
-            <option value="EXPERT">EXPERT</option>
-            <option value="MASTER">MASTER</option>
-            <option value="ULTIMA">ULTIMA</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="manualConst">譜面定数</label>
-          <input
-            id="manualConst"
-            type="number"
-            min="1"
-            max="20"
-            step="0.1"
-            placeholder="例: 14.2"
-          >
-        </div>
-
-        <div>
-          <label for="manualScore">スコア</label>
-          <input
-            id="manualScore"
-            type="number"
-            min="0"
-            max="1010000"
-            step="1"
-            placeholder="例: 1009000"
-          >
-        </div>
-
-        <div>
-          <label for="manualDate">プレイ日（任意）</label>
-          <input id="manualDate" type="date">
-        </div>
-
-        <p>
+        <div class="button-row">
           <button type="button" id="addManualBtn">スコアを保存</button>
           <button type="button" id="clearManualFormBtn">入力をクリア</button>
-        </p>
-
-        <p id="manualStatus" class="description" aria-live="polite"></p>
+        </div>
+        <p class="status" id="manualStatus" aria-live="polite"></p>
       </section>
 
       <section class="card">
         <h2>手動入力した記録</h2>
-        <div id="manualList">
-          <p class="description">まだ記録がないよ。</p>
-        </div>
+        <p class="description">削除するとBEST・NEWの計算対象からも外れるよ。</p>
+        <div id="manualList"></div>
       </section>
     </section>
 
     <section class="panel" id="panel-records" hidden>
       <section class="card">
         <h2>全スコア</h2>
-
-        <label for="recordSearch">曲名で絞り込み</label>
-        <input id="recordSearch" placeholder="曲名を入力">
-
-        <div id="allRecords">
-          <p class="description">まだ記録がないよ。</p>
-        </div>
+        <label for="recordSearch">曲名で検索</label>
+        <input id="recordSearch" type="search" placeholder="曲名を入力">
+        <div id="allRecords" style="margin-top: 12px;"></div>
       </section>
     </section>
 
-    <p class="note">
-      Unofficial fan-made tool. CHUNITHM is a trademark of SEGA.
-    </p>
+    <section class="panel" id="panel-export" hidden>
+      <section class="card">
+        <h2>画像出力</h2>
+        <p class="description">BEST 30・NEW 20の一覧をPNG画像にするよ。</p>
+        <div class="button-row">
+          <button type="button" id="exportImageBtn">PNG画像を作成</button>
+        </div>
+        <p class="status" id="exportStatus" aria-live="polite"></p>
+      </section>
+    </section>
   </main>
-
-  <div id="footer"></div>
 
   <script src="/script/script.js"></script>
   <script src="/script/tools/chunithm/rating.js"></script>

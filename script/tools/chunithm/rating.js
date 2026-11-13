@@ -1,4 +1,3 @@
-
 "use strict";
 
 (() => {
@@ -298,6 +297,7 @@
 
     } catch (error) {
       showError(error);
+
       $("songsStatus").textContent =
         "楽曲データの取得に失敗したよ。";
     } finally {
@@ -350,6 +350,7 @@
 
     } catch (error) {
       showError(error);
+
       $("loadStatus").textContent =
         "ユーザーデータの取得に失敗したよ。手動記録はそのまま残っているよ。";
     } finally {
@@ -406,6 +407,7 @@
         .filter(record => record.is_played)
         .forEach(record => {
           const song = songsById.get(String(record.id));
+
           result.push(
             normalizeApiRecord(
               record,
@@ -501,14 +503,22 @@
   // -------------------------
 
   function renderProfile() {
+    // BEST30 + NEW20 の合計50枠で計算する。
+    // 記録が存在しない枠は加算値0として扱う。
+    const frames = getFrameRecords();
+
+    const total = [
+      ...frames.best,
+      ...frames.newer
+    ].reduce((sum, record) => sum + (Number(record.rating) || 0), 0);
+
+    $("playerRating").textContent = (total / 50).toFixed(2);
+
     if (playerData?.player) {
       const player = playerData.player;
 
       $("playerName").textContent =
         player.name || playerData.username || "不明";
-
-      $("playerRating").textContent =
-        Number(player.rating || 0).toFixed(2);
 
       $("playerLevel").textContent = player.level ?? "--";
 
@@ -519,18 +529,7 @@
       return;
     }
 
-    const frames = getFrameRecords();
-    const count = frames.best.length + frames.newer.length;
-
-    const total = [
-      ...frames.best,
-      ...frames.newer
-    ].reduce((sum, record) => sum + record.rating, 0);
-
     $("playerName").textContent = "手動入力モード";
-    $("playerRating").textContent =
-      count ? (total / count).toFixed(2) : "--.--";
-
     $("playerLevel").textContent = "--";
     $("lastPlayed").textContent = "--";
   }
