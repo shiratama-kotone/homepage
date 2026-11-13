@@ -244,95 +244,110 @@ function calcRate(constant, score) {
     $("loadStatus").textContent = "設定をこのブラウザに保存したよ。";
   }
 
-  async function loadData() {
-    const username = $("username").value.trim();
-    const token = $("token").value.trim();
+// ユーザーデータ取得
+async function loadData() {
+  const username = $("username").value.trim();
+  const token = $("token").value.trim();
 
-    if (!username || !token) {
-      showError(Object.assign(
-        new Error("ユーザー名とAPIトークンの両方を入力してね。"),
-        { kind: "input" }
-      ));
-
-      $("errorSummary").textContent =
-        "ユーザー名とAPIトークンの両方を入力してね。";
-
-      return;
-    }
-
-    clearError();
-    $("loadBtn").disabled = true;
-    $("loadStatus").textContent =
-      "プレイヤーデータと楽曲データを取得中…";
-
-    try {
-      const userUrl =
-        API_BASE + "/v1/users/" + encodeURIComponent(username);
-
-      const [userResult, songsResult] = await Promise.allSettled([
-        fetchJson(userUrl, token),
-        fetchJson(SONGS_URL)
-      ]);
-
-      if (userResult.status === "rejected") {
-        throw userResult.reason;
-      }
-
-      playerData = userResult.value;
-
-      if (
-        songsResult.status === "fulfilled" &&
-        Array.isArray(songsResult.value.songs)
-      ) {
-        songs = songsResult.value.songs;
-        songsById = new Map(songs.map(song => [song.id, song]));
-      } else {
-        songs = [];
-        songsById = new Map();
-
-        if (songsResult.status === "rejected") {
-          showError(songsResult.reason);
-        }
-      }
-
-      if (!playerData || !playerData.player || !playerData.records) {
-        throw Object.assign(
-          new Error(
-            "このユーザーにはChuniSupportに連携されたプレイヤーデータがないよ。"
-          ),
-          {
-            kind: "data",
-            url: userUrl,
-            body: JSON.stringify(playerData, null, 2)
-          }
-        );
-      }
-
-      saveSettings();
-      renderProfile();
-      renderFrames();
-      renderManualList();
-      renderAllRecords();
-
-      $("loadStatus").textContent =
-        "取得完了。最終更新: " +
-        (playerData.records.updated_at || playerData.updated_at || "不明");
-
-      if (songs.length) {
-        $("manualStatus").textContent =
-          "楽曲データ " + songs.length.toLocaleString() + " 曲を読み込んだよ。";
-      } else if (songsResult.status === "rejected") {
-        $("loadStatus").textContent +=
-          " ただし楽曲検索用データは取得できなかったよ。";
-      }
-    } catch (error) {
-      showError(error);
-      $("loadStatus").textContent =
-        "データの取得に失敗したよ。下のエラー詳細を確認してね。";
-    } finally {
-      $("loadBtn").disabled = false;
-    }
+  if (!username || !token) {
+    showError(Object.assign(
+      new Error("ユーザー名とAPIトークンの両方を入力してね。"),
+      { kind: "input" }
+    ));
+    return;
   }
+
+  clearError();
+  $("loadBtn").disabled = true;
+  $("loadStatus").textContent = "ユーザーデータを取得中…";
+
+  try {
+    const url =
+      API_BASE + "/v1/users/" + encodeURIComponent(username);
+
+    const result = await fetchJson(url, token);
+
+    if (!result || !result.player || !result.records) {
+      throw Object.assign(
+        new Error("プレイヤーデータが見つからなかったよ。"),
+        {
+          kind: "data",
+          url,
+          body: JSON.stringify(result, null, 2)
+        }
+      );
+    }
+
+    playerData = result;
+
+    saveSettings();
+    renderProfile();
+    renderFrames();
+    renderManualList();
+    renderAllRecords();
+
+    $("loadStatus").textContent =
+      "ユーザーデータ取得完了。最終更新: " +
+      (playerData.records.updated_at || playerData.updated_at || "不明");
+
+  } catch (error) {
+    showError(error);
+    $("loadStatus").textContent =
+      "ユーザーデータの取得に失敗したよ。";
+  } finally {
+    $("loadBtn").disabled = false;
+  }
+}
+
+
+// 楽曲データ取得
+async function loadSongs() {
+  clearError();
+  $("loadSongsBtn").disabled = true;
+  $("songsStatus").textContent = "楽曲データを取得中…";
+
+  try {
+    const result = await fetchJson(SONGS_URL);
+
+    if (!result || !Array.isArray(result.songs)) {
+      throw Object.assign(
+        new Error("楽曲データの形式が正しくないよ。"),
+        {
+          kind: "data",
+          url: SONGS_URL,
+          body: JSON.stringify(result, null, 2)
+        }
+      );
+    }
+
+    songs = result.songs;
+    songsById = new Map(
+      songs.map(song => [song.id, song])
+    );
+
+    $("songsStatus").textContent =
+      "楽曲データ取得完了。全 " +
+      songs.length.toLocaleString("ja-JP") +
+      " 曲を読み込んだよ。";
+
+    $("songSearch").placeholder = "曲名を入力";
+
+    // 楽曲情報を再反映
+    renderFrames();
+    renderManualList();
+    renderAllRecords();
+
+    $("manualStatus").textContent =
+      "楽曲データを読み込んだよ。曲名を検索できるよ。";
+
+  } catch (error) {
+    showError(error);
+    $("songsStatus").textContent =
+      "楽曲データの取得に失敗したよ。";
+  } finally {
+    $("loadSongsBtn").disabled = false;
+  }
+}
 
   function renderProfile() {
     const player = playerData.player;
@@ -1020,6 +1035,7 @@ function calcRate(constant, score) {
     setupSearch();
 
     $("loadBtn").addEventListener("click", loadData);
+    $("loadSongsBtn").addEventListener("click", loadSongs);
     $("saveSettingsBtn").addEventListener("click", saveSettings);
 
     $("clearTokenBtn").addEventListener("click", () => {

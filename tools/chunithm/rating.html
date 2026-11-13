@@ -87,11 +87,19 @@ label{display:block;font-size:.8rem;color:var(--muted);font-weight:700;margin-bo
         <label for="token">APIトークン</label>
         <input id="token" type="password" autocomplete="off" placeholder="APIトークン">
       </div>
-      <div class="actions">
-        <button class="primary" id="loadBtn">データを取得</button>
-        <button id="saveSettingsBtn">設定を保存</button>
-        <button id="clearTokenBtn">トークンを消去</button>
-      </div>
+<div class="actions">
+  <button class="primary" id="loadBtn">ユーザーデータを取得</button>
+  <button class="primary" id="loadSongsBtn">楽曲データを取得</button>
+  <button id="saveSettingsBtn">設定を保存</button>
+  <button id="clearTokenBtn">トークンを消去</button>
+</div>
+
+<p class="status" id="loadStatus" aria-live="polite">
+  ユーザーデータは未取得だよ。
+</p>
+<p class="status" id="songsStatus" aria-live="polite">
+  楽曲データは未取得だよ。
+</p>
     </div>
     <p class="status" id="loadStatus" aria-live="polite">APIトークンとユーザー名を入力して取得してね。</p>
   </section>
