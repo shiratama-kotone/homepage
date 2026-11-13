@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ゆゆゆのホームページ</title>
+<title>透明なセカイ</title>
 
 <link rel="stylesheet" href="/style/style.css">
 <meta name="theme-color" content="#f7f7fb">
@@ -26,7 +26,7 @@
 
 <div class="content">
 
-  <h1>ゆゆゆのホームページ</h1>
+  <h1>透明なセカイ</h1>
 
   <p>
     いろいろ遊んだり意味のないものとか<b>AIに頼りまくって</b>作ったりする
@@ -49,11 +49,11 @@
   <section>
     <h2>コンテンツ</h2>
     <ul>
-      <li><a href="https://yuyuyu-made-bbs.onrender.com/">掲示板</a></li>
-      <li><a href="/blog/">ブログ</a></li>
-      <li><a href="/tools/">ツール</a></li>
-      <li><a href="/links">リンク集</a></li>
-      <li><a href="/wiki/">Wiki</a></li>
+      <li><a href="https://yuyuyu-made-bbs.onrender.com/">掲示板かもね</a></li>
+      <li><a href="/blog/">ブログかな</a></li>
+      <li><a href="/tools/">使いもんにならないツール</a></li>
+      <li><a href="/links">いろいろリンク集</a></li>
+      <li><a href="/wiki/">Wikiらしい</a></li>
     </ul>
   </section>
 </div>
@@ -61,29 +61,6 @@
 <div id="footer"></div>
 
 <script src="/script/script.js"></script>
-
-<script>
-let deferredPrompt;
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  document.getElementById("installBtn").hidden = false;
-});
-
-document.getElementById("installBtn").addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log("結果:", outcome);
-
-  deferredPrompt = null;
-  document.getElementById("installBtn").hidden = true;
-});
-</script>
 
 </body>
 </html>

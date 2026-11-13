@@ -1,6 +1,6 @@
 document.getElementById("header").innerHTML = `
 <header>
-  <a href="/"><h2>ゆゆゆのホームページ</h2></a>
+  <a href="/"><h2>透明なセカイ</h2></a>
 </header>
 `;
 
