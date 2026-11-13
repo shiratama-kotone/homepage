@@ -16,6 +16,21 @@
   status = 200
   force = true
 
+ # 合言葉ページだすやつ
+[[redirects]]
+  from = "/admin.html"
+  to = "/admin.html"
+  status = 200
+  force = true
+
+# くっきー持ってるやつは通す
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 200
+  force = true
+  conditions = {Cookie = ["admin_mode"]}
+
 # 503かえすやつ
 [[redirects]]
   from = "/*"

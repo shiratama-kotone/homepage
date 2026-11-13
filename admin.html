@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者認証</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f4f9; }
+    .box { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; }
+    input { padding: 0.6rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+    button { padding: 0.6rem 1.2rem; font-size: 1rem; background: #0070f3; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-left: 0.5rem; }
+    button:hover { background: #005bb5; }
+    #msg { color: #e00; margin-top: 1rem; font-size: 0.9rem; min-height: 1.2em; }
+    .status { margin-bottom: 1.2rem; font-size: 0.9rem; padding: 0.5rem; border-radius: 4px; background: #eee; color: #333; }
+    .status.active { background: #e6f7ed; color: #1e7e34; font-weight: bold; }
+    .logout-area { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .btn-logout { background: #666; margin-left: 0; font-size: 0.9rem; }
+    .btn-logout:hover { background: #444; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>管理者権限でサイトを見る<br><small style="font-size: 0.8em; color: #666;">(有効期限: 1日)</small></h2>
+    
+    <div id="status-box" class="status">状態確認中...</div>
+
+    <form id="auth-form">
+      <input type="password" id="pw" placeholder="パスワードを入力" required autofocus>
+      <button type="submit">認証</button>
+    </form>
+    <p id="msg"></p>
+
+    <div id="logout-area" class="logout-area" style="display: none;">
+      <button type="button" id="logout-btn" class="btn-logout">管理者モード解除</button>
+    </div>
+  </div>
+
+  <script>
+    const TARGET_HASH = "8929bf7d26174446c133bffb0574d0f2d89c04dfbdaa3e47c928b8e6dd7f58dc";
+
+    // Cookieがセットされているか確認する関数
+    function hasAdminCookie() {
+      return document.cookie.split(";").some(item => item.trim().startsWith("admin_mode=true"));
+    }
+
+    // 画面の表示状態を更新
+    function updateStatusUI() {
+      const statusBox = document.getElementById("status-box");
+      const logoutArea = document.getElementById("logout-area");
+
+      if (hasAdminCookie()) {
+        statusBox.textContent = "現在：管理者モード有効";
+        statusBox.classList.add("active");
+        logoutArea.style.display = "block";
+      } else {
+        statusBox.textContent = "現在：管理者モード無効";
+        statusBox.classList.remove("active");
+        logoutArea.style.display = "none";
+      }
+    }
+
+    async function sha256(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // 認証処理（Cookie付与）
+    document.getElementById("auth-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const inputPw = document.getElementById("pw").value;
+      const inputHash = await sha256(inputPw);
+
+      if (inputHash === TARGET_HASH) {
+        document.cookie = "admin_mode=true; path=/; max-age=86400; SameSite=Lax";
+        location.href = "/";
+      } else {
+        document.getElementById("msg").textContent = "パスワードが違います";
+        document.getElementById("pw").value = "";
+      }
+    });
+
+    // 解除処理（Cookie削除）
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      // max-age=0 を指定してCookieを即時削除
+      document.cookie = "admin_mode=; path=/; max-age=0; SameSite=Lax";
+      updateStatusUI();
+      document.getElementById("msg").style.color = "#333";
+      document.getElementById("msg").textContent = "管理者モードを終了しました。";
+    });
+
+    // ページ読み込み時に状態をチェック
+    updateStatusUI();
+  </script>
+</body>
+</html>
