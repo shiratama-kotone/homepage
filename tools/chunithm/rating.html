@@ -440,41 +440,75 @@
 
     <section class="panel" id="panel-input" hidden>
       <section class="card">
-        <h2>スコアを手動入力</h2>
+  <h2>スコアを手動入力</h2>
 
-        <label for="songSearch">楽曲検索</label>
-        <input id="songSearch" type="search" placeholder="先に楽曲データを取得してね" autocomplete="off">
-        <div class="search-results" id="searchResults" hidden></div>
+  <label for="songSearch">楽曲検索</label>
+  <input
+    id="songSearch"
+    type="search"
+    placeholder="先に楽曲データを取得してね"
+    autocomplete="off"
+  >
+  <div class="search-results" id="searchResults" hidden></div>
 
-        <p class="description" id="selectedSong">楽曲が選択されていないよ。</p>
+  <p class="description" id="selectedSong">
+    楽曲が選択されていないよ。
+  </p>
 
-        <div class="form-grid">
-          <div>
-            <label for="difficulty">難易度</label>
-            <select id="difficulty">
-              <option value="">楽曲を選択してね</option>
-            </select>
-          </div>
-          <div>
-            <label for="manualConst">譜面定数</label>
-            <input id="manualConst" type="number" min="1" max="20" step="0.1" placeholder="譜面定数">
-          </div>
-          <div>
-            <label for="manualScore">スコア</label>
-            <input id="manualScore" type="number" min="0" max="1010000" step="1" placeholder="例: 1000000">
-          </div>
-          <div>
-            <label for="manualDate">プレイ日（任意）</label>
-            <input id="manualDate" type="date">
-          </div>
-        </div>
+  <div class="form-grid">
+    <div>
+      <label for="difficulty">難易度</label>
+      <select id="difficulty">
+        <option value="">楽曲を選択してね</option>
+      </select>
+    </div>
 
-        <div class="button-row">
-          <button type="button" id="addManualBtn">スコアを保存</button>
-          <button type="button" id="clearManualFormBtn">入力をクリア</button>
-        </div>
-        <p class="status" id="manualStatus" aria-live="polite"></p>
-      </section>
+    <div>
+      <label for="manualFrame">振り分け先</label>
+      <select id="manualFrame" required>
+        <option value="">選択してね</option>
+        <option value="best">BEST枠</option>
+        <option value="new">NEW枠</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="manualConst">譜面定数</label>
+      <input
+        id="manualConst"
+        type="number"
+        min="1"
+        max="20"
+        step="0.1"
+        placeholder="譜面定数"
+      >
+    </div>
+
+    <div>
+      <label for="manualScore">スコア</label>
+      <input
+        id="manualScore"
+        type="number"
+        min="0"
+        max="1010000"
+        step="1"
+        placeholder="例: 1000000"
+      >
+    </div>
+
+    <div>
+      <label for="manualDate">プレイ日（任意）</label>
+      <input id="manualDate" type="date">
+    </div>
+  </div>
+
+  <div class="button-row">
+    <button type="button" id="addManualBtn">スコアを保存</button>
+    <button type="button" id="clearManualFormBtn">入力をクリア</button>
+  </div>
+
+  <p class="status" id="manualStatus" aria-live="polite"></p>
+</section>
 
       <section class="card">
         <h2>手動入力した記録</h2>

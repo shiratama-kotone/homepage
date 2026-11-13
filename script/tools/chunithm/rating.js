@@ -382,19 +382,21 @@
     };
   }
 
-  function normalizeManualRecord(record) {
-    const song = songsById.get(String(record.id));
+function normalizeManualRecord(record) {
+  const song = songsById.get(String(record.id));
 
-    return {
-      ...record,
-      id: String(record.id),
-      title: record.title || song?.title || "曲名不明",
-      img: record.img || song?.jacket || "",
-      isNew: song ? Boolean(song.is_new) : Boolean(record.isNew),
-      rating: calcRate(Number(record.const), Number(record.score)),
-      manual: true
-    };
-  }
+  return {
+    ...record,
+    id: String(record.id),
+    title: record.title || song?.title || "曲名不明",
+    img: record.img || song?.jacket || "",
+    isNew: typeof record.isNew === "boolean"
+      ? record.isNew
+      : Boolean(song?.is_new),
+    rating: calcRate(Number(record.const), Number(record.score)),
+    manual: true
+  };
+}
 
   function getApiRecords() {
     if (!playerData?.records) return [];
@@ -787,72 +789,79 @@
   // 手動スコア保存
   // -------------------------
 
-  function addManualRecord() {
-    if (!selectedSong) {
-      $("manualStatus").textContent =
-        "先に楽曲を検索して選択してね。";
-      return;
-    }
-
-    const difficulty = $("difficulty").value;
-    const chart = selectedSong.charts?.[difficulty];
-
-    const constant = Number($("manualConst").value);
-    const score = Number($("manualScore").value);
-
-    if (
-      !chart ||
-      !Number.isFinite(constant) ||
-      constant < 1 ||
-      constant > 20
-    ) {
-      $("manualStatus").textContent =
-        "譜面定数を正しく入力してね。";
-      return;
-    }
-
-    if (
-      !Number.isInteger(score) ||
-      score < 0 ||
-      score > 1010000
-    ) {
-      $("manualStatus").textContent =
-        "スコアは0〜1,010,000の整数で入力してね。";
-      return;
-    }
-
-    const record = {
-      id: String(selectedSong.id),
-      title: selectedSong.title,
-      artist: selectedSong.artist || "",
-      difficulty,
-      const: constant,
-      score,
-      img: selectedSong.jacket || "",
-      isNew: Boolean(selectedSong.is_new),
-      date: $("manualDate").value || null
-    };
-
-    const existingIndex = manualRecords.findIndex(item =>
-      String(item.id) === record.id &&
-      item.difficulty === record.difficulty
-    );
-
-    if (existingIndex >= 0) {
-      manualRecords[existingIndex] = record;
-    } else {
-      manualRecords.push(record);
-    }
-
-    writeStorage(MANUAL_KEY, manualRecords);
-
+function addManualRecord() {
+  if (!selectedSong) {
     $("manualStatus").textContent =
-      "保存したよ。API記録と比較して高いスコアが採用されるよ。";
-
-    $("manualScore").value = "";
-
-    renderAll();
+      "先に楽曲を検索して選択してね。";
+    return;
   }
+
+  const difficulty = $("difficulty").value;
+  const chart = selectedSong.charts?.[difficulty];
+  const frame = $("manualFrame").value;
+
+  if (frame !== "best" && frame !== "new") {
+    $("manualStatus").textContent =
+      "BEST枠かNEW枠を選択してね。";
+    return;
+  }
+
+  const constant = Number($("manualConst").value);
+  const score = Number($("manualScore").value);
+
+  if (
+    !chart ||
+    !Number.isFinite(constant) ||
+    constant < 1 ||
+    constant > 20
+  ) {
+    $("manualStatus").textContent =
+      "譜面定数を正しく入力してね。";
+    return;
+  }
+
+  if (
+    !Number.isInteger(score) ||
+    score < 0 ||
+    score > 1010000
+  ) {
+    $("manualStatus").textContent =
+      "スコアは0〜1,010,000の整数で入力してね。";
+    return;
+  }
+
+  const record = {
+    id: String(selectedSong.id),
+    title: selectedSong.title,
+    artist: selectedSong.artist || "",
+    difficulty,
+    const: constant,
+    score,
+    img: selectedSong.jacket || "",
+    isNew: frame === "new",
+    date: $("manualDate").value || null
+  };
+
+  const existingIndex = manualRecords.findIndex(item =>
+    String(item.id) === record.id &&
+    item.difficulty === record.difficulty
+  );
+
+  if (existingIndex >= 0) {
+    manualRecords[existingIndex] = record;
+  } else {
+    manualRecords.push(record);
+  }
+
+  writeStorage(MANUAL_KEY, manualRecords);
+
+  $("manualStatus").textContent =
+    "保存したよ。API記録と比較して高いスコアが採用されるよ。";
+
+  $("manualScore").value = "";
+
+  renderAll();
+}
 
   // -------------------------
   // PNG画像出力
@@ -1080,19 +1089,20 @@
 
     $("addManualBtn").addEventListener("click", addManualRecord);
 
-    $("clearManualFormBtn").addEventListener("click", () => {
-      selectedSong = null;
+$("clearManualFormBtn").addEventListener("click", () => {
+  selectedSong = null;
 
-      $("songSearch").value = "";
-      $("manualConst").value = "";
-      $("manualScore").value = "";
-      $("manualDate").value = "";
+  $("songSearch").value = "";
+  $("manualConst").value = "";
+  $("manualScore").value = "";
+  $("manualDate").value = "";
+  $("manualFrame").value = "";
 
-      $("selectedSong").textContent =
-        "楽曲が選択されていないよ。";
+  $("selectedSong").textContent =
+    "楽曲が選択されていないよ。";
 
-      $("searchResults").hidden = true;
-    });
+  $("searchResults").hidden = true;
+});
 
     $("recordSearch").addEventListener("input", renderAllRecords);
 
