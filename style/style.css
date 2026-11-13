@@ -280,6 +280,11 @@ a:hover {
   font-size: .9rem;
 }
 
+.note {
+  font-size: 0.8em;
+  color: #999;
+}
+
 /* ===== タグ ===== */
 
 .tag {

@@ -1,18 +1,22 @@
-# /style/ フォルダ内のファイルはそのまま読み込む
 [[redirects]]
   from = "/style/*"
   to = "/style/:splat"
   status = 200
   force = true
 
-# /script/ フォルダ内のファイルはそのまま読み込む
 [[redirects]]
   from = "/script/*"
   to = "/script/:splat"
   status = 200
   force = true
 
-# それ以外のすべてのアクセスをメンテナンスページへ（503を返す）
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+  force = true
+
+# 503かえすやつ
 [[redirects]]
   from = "/*"
   to = "/maintenance.html"
