@@ -2,191 +2,148 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CHUNITHM RATING</title>
-<link rel="stylesheet" href="/style/style.css">
-<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
-<style>
-:root{color-scheme:light dark;--page:#f4f5f8;--surface:#fff;--ink:#20232b;--muted:#697181;--line:#dfe3ea;--accent:#7053b8;--soft:#f0ecfa;--danger:#b42335;--bas:#39a66b;--adv:#d89a24;--exp:#df5367;--mas:#8860d1;--ult:#222}
-@media(prefers-color-scheme:dark){:root{--page:#15171c;--surface:#20232b;--ink:#edf0f5;--muted:#a2a9b6;--line:#373c48;--accent:#b49be9;--soft:#302943;--danger:#ff7788;--bas:#55c98a;--adv:#edb74c;--exp:#ff7788;--mas:#b49be9;--ult:#eee}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font-family:"M PLUS 1p",system-ui,sans-serif}
-main{width:min(1100px,calc(100% - 28px));margin:26px auto 60px}
-h1{font-size:1.55rem;margin:0 0 6px}
-h2{font-size:1.12rem;margin:0 0 14px}
-h3{font-size:.98rem;margin:0}
-.sub{color:var(--muted);font-size:.88rem;margin:0 0 20px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 2px 8px #00000008}
-.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-button,input,select{font:inherit}
-button{border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:var(--surface);color:var(--ink);cursor:pointer}
-button.primary{background:var(--accent);border-color:var(--accent);color:white;font-weight:700}
-button:disabled{opacity:.55;cursor:wait}
-input,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);color:var(--ink);min-width:0}
-label{display:block;font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:5px}
-.field{min-width:0}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.settingsgrid{display:grid;grid-template-columns:1fr 1fr 2fr;gap:12px;align-items:end}
-@media(max-width:650px){.formgrid,.settingsgrid{grid-template-columns:1fr}.card{padding:14px}}
-.status{font-size:.85rem;color:var(--muted);margin-top:10px;min-height:1.2em}
-.error{display:none;border:1px solid #e6a3ab;background:color-mix(in srgb,#e65b6b 9%,var(--surface));border-radius:12px;padding:14px;margin:14px 0;color:var(--ink)}
-.error.show{display:block}
-.error strong{color:var(--danger)}
-.error pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--page);padding:12px;border-radius:8px;font-size:.76rem}
-.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 12px;overflow:auto}
-.tab{white-space:nowrap;border:0;border-radius:8px 8px 0 0;background:transparent;color:var(--muted)}
-.tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
-.panel{display:none}
-.panel.active{display:block}
-.profile{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.rating{font-size:2.6rem;font-weight:800;line-height:1.1}
-.profilemeta{color:var(--muted);font-size:.85rem}
-.frames{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.framehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.songrow{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);min-height:62px}
-.songrow:last-child{border-bottom:0}
-.jacket{width:46px;height:46px;object-fit:cover;border-radius:6px;background:var(--page);border:1px solid var(--line)}
-.songtitle{font-size:.84rem;font-weight:700;overflow-wrap:anywhere}
-.songmeta{font-size:.72rem;color:var(--muted);margin-top:3px}
-.score{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-size:.84rem;font-weight:700}
-.score small{display:block;color:var(--muted);font-weight:400;font-size:.72rem}
-.diff{display:inline-block;border-radius:5px;padding:1px 5px;color:#fff;font-size:.66rem;font-weight:800;margin-right:4px}
-.BASIC{background:var(--bas)}
-.ADVANCED{background:var(--adv)}
-.EXPERT{background:var(--exp)}
-.MASTER{background:var(--mas)}
-.ULTIMA{background:var(--ult)}
-.empty{color:var(--muted);padding:25px;text-align:center;font-size:.86rem}
-.searchresults{max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:5px;display:none}
-.searchresults.show{display:block}
-.searchitem{width:100%;display:block;text-align:left;border:0;border-radius:0;border-bottom:1px solid var(--line);padding:9px}
-.searchitem:last-child{border:0}
-.searchitem small{display:block;color:var(--muted)}
-#selectedSong{font-size:.85rem;color:var(--muted);margin:8px 0}
-.footer{color:var(--muted);font-size:.75rem;text-align:center;margin-top:26px}
-@media(max-width:760px){.frames{grid-template-columns:1fr}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CHUNITHM RATING</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
 </head>
 <body>
-<div id="header"></div>
+  <div id="header"></div>
 
-<main>
-  <h1>CHUNITHM RATING</h1>
-  <p class="sub">ChuniSupportのプレイヤーデータを取得して、BEST枠・NEW枠とスコアを管理するツール</p>
+  <main class="content">
+    <h1>CHUNITHM RATING</h1>
+    <p class="description">
+      スコアを記録して、自分のレートを計算できるツール
+    </p>
 
-  <section class="card">
-    <h2>プレイヤーデータ</h2>
-    <div class="settingsgrid">
-      <div class="field">
+    <section class="card">
+      <h2>レート</h2>
+      <p class="description">手動入力・ChuniSupportから取得した記録をまとめて計算するよ。</p>
+
+      <div>
+        <span class="note">PLAYER</span>
+        <p id="playerName">手動入力モード</p>
+      </div>
+
+      <div>
+        <span class="note">RATING</span>
+        <h2 id="playerRating">--.--</h2>
+      </div>
+
+      <div>
+        <span class="note">プレイヤーレベル</span>
+        <p id="playerLevel">--</p>
+      </div>
+
+      <div>
+        <span class="note">最終プレイ</span>
+        <p id="lastPlayed">--</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>楽曲データ</h2>
+      <p class="description">
+        曲名・難易度・譜面定数を取得するよ。ユーザーデータとは別に取得できるよ。
+      </p>
+
+      <button type="button" id="loadSongsBtn">楽曲データを取得</button>
+      <p id="songsStatus" class="description" aria-live="polite">
+        楽曲データは未取得だよ。
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>ChuniSupport連携</h2>
+      <p class="description">
+        ユーザーデータを取り込みたい場合だけ使ってね。手動入力だけでも利用できるよ。
+      </p>
+
+      <div>
         <label for="username">ChuniSupportユーザー名</label>
         <input id="username" autocomplete="username" placeholder="ユーザー名">
       </div>
-      <div class="field">
+
+      <div>
         <label for="token">APIトークン</label>
         <input id="token" type="password" autocomplete="off" placeholder="APIトークン">
       </div>
-<div class="actions">
-  <button class="primary" id="loadBtn">ユーザーデータを取得</button>
-  <button class="primary" id="loadSongsBtn">楽曲データを取得</button>
-  <button id="saveSettingsBtn">設定を保存</button>
-  <button id="clearTokenBtn">トークンを消去</button>
-</div>
 
-<p class="status" id="loadStatus" aria-live="polite">
-  ユーザーデータは未取得だよ。
-</p>
-<p class="status" id="songsStatus" aria-live="polite">
-  楽曲データは未取得だよ。
-</p>
-    </div>
-    <p class="status" id="loadStatus" aria-live="polite">APIトークンとユーザー名を入力して取得してね。</p>
-  </section>
+      <p>
+        <button type="button" id="loadBtn">ユーザーデータを取得</button>
+        <button type="button" id="saveSettingsBtn">設定を保存</button>
+        <button type="button" id="clearTokenBtn">トークンを消去</button>
+      </p>
 
-  <section class="error" id="errorBox" role="alert">
-    <div class="topline">
-      <strong id="errorTitle">エラー</strong>
-      <button id="errorDetailsBtn" type="button">詳しく見る</button>
-    </div>
-    <p id="errorSummary"></p>
-    <div id="errorDetails" hidden>
-      <pre id="errorRaw"></pre>
-      <div class="actions">
-        <button id="copyErrorBtn" type="button">エラー詳細をコピー</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="profile">
-      <div>
-        <div class="profilemeta">PLAYER</div>
-        <div id="playerName">未取得</div>
-      </div>
-      <div>
-        <div class="profilemeta">RATING</div>
-        <div class="rating" id="playerRating">--.--</div>
-      </div>
-      <div>
-        <div class="profilemeta">プレイヤーレベル</div>
-        <strong id="playerLevel">--</strong>
-      </div>
-      <div>
-        <div class="profilemeta">最終プレイ</div>
-        <strong id="lastPlayed">--</strong>
-      </div>
-    </div>
-  </section>
-
-  <div class="tabs">
-    <button class="tab active" data-tab="frames">BEST / NEW</button>
-    <button class="tab" data-tab="manual">手動スコア入力</button>
-    <button class="tab" data-tab="records">全スコア</button>
-  </div>
-
-  <section class="panel active" id="panel-frames">
-    <div class="frames">
-      <section class="card">
-        <div class="framehead">
-          <h2>BEST 30</h2>
-          <span id="bestCount">0 / 30</span>
-        </div>
-        <div id="bestList"><div class="empty">データを取得してね。</div></div>
-      </section>
-      <section class="card">
-        <div class="framehead">
-          <h2>NEW 20</h2>
-          <span id="newCount">0 / 20</span>
-        </div>
-        <div id="newList"><div class="empty">データを取得してね。</div></div>
-      </section>
-    </div>
-
-    <section class="card">
-      <div class="topline">
-        <div>
-          <h2>画像出力</h2>
-          <p class="sub" style="margin:4px 0 0">BEST30・NEW20を1枚のPNGにまとめる</p>
-        </div>
-        <button class="primary" id="exportImageBtn">PNG画像を保存</button>
-      </div>
-      <p class="status" id="exportStatus"></p>
+      <p id="loadStatus" class="description" aria-live="polite">
+        ChuniSupport未連携。手動入力で利用できるよ。
+      </p>
     </section>
-  </section>
 
-  <section class="panel" id="panel-manual">
-    <section class="card">
-      <h2>スコアを手動で追加</h2>
-      <div class="field">
-        <label for="songSearch">楽曲を検索</label>
-        <input id="songSearch" placeholder="曲名を入力（先にデータ取得が必要）" autocomplete="off">
-        <div id="searchResults" class="searchresults"></div>
+    <section id="errorBox" class="card" hidden role="alert">
+      <h2 id="errorTitle">エラー</h2>
+      <p id="errorSummary"></p>
+      <button type="button" id="errorDetailsBtn">詳しく見る</button>
+
+      <div id="errorDetails" hidden>
+        <pre id="errorRaw"></pre>
+        <button type="button" id="copyErrorBtn">エラー詳細をコピー</button>
       </div>
-      <div id="selectedSong">楽曲が選択されていないよ。</div>
+    </section>
 
-      <div class="formgrid">
-        <div class="field">
+    <nav>
+      <button type="button" class="tab active" data-tab="frames">BEST / NEW</button>
+      <button type="button" class="tab" data-tab="manual">手動スコア入力</button>
+      <button type="button" class="tab" data-tab="records">全スコア</button>
+    </nav>
+
+    <section class="panel active" id="panel-frames">
+      <section class="card">
+        <h2>BEST 30</h2>
+        <p id="bestCount" class="description">0 / 30</p>
+        <div id="bestList">
+          <p class="description">まだ記録がないよ。</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>NEW 20</h2>
+        <p id="newCount" class="description">0 / 20</p>
+        <div id="newList">
+          <p class="description">まだ記録がないよ。</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>画像出力</h2>
+        <p class="description">
+          BEST30・NEW20を1枚のPNG画像にまとめるよ。
+        </p>
+        <button type="button" id="exportImageBtn">PNG画像を保存</button>
+        <p id="exportStatus" class="description"></p>
+      </section>
+    </section>
+
+    <section class="panel" id="panel-manual" hidden>
+      <section class="card">
+        <h2>スコアを手動で追加</h2>
+
+        <div>
+          <label for="songSearch">楽曲を検索</label>
+          <input
+            id="songSearch"
+            placeholder="楽曲データを取得すると検索できるよ"
+            autocomplete="off"
+          >
+          <div id="searchResults" hidden></div>
+        </div>
+
+        <p id="selectedSong" class="description">
+          楽曲が選択されていないよ。
+        </p>
+
+        <div>
           <label for="difficulty">難易度</label>
           <select id="difficulty">
             <option value="BASIC">BASIC</option>
@@ -196,48 +153,73 @@ label{display:block;font-size:.8rem;color:var(--muted);font-weight:700;margin-bo
             <option value="ULTIMA">ULTIMA</option>
           </select>
         </div>
-        <div class="field">
+
+        <div>
           <label for="manualConst">譜面定数</label>
-          <input id="manualConst" type="number" min="1" max="16.9" step="0.1" placeholder="例: 14.2">
+          <input
+            id="manualConst"
+            type="number"
+            min="1"
+            max="20"
+            step="0.1"
+            placeholder="例: 14.2"
+          >
         </div>
-        <div class="field">
+
+        <div>
           <label for="manualScore">スコア</label>
-          <input id="manualScore" type="number" min="0" max="1010000" step="1" placeholder="例: 1009000">
+          <input
+            id="manualScore"
+            type="number"
+            min="0"
+            max="1010000"
+            step="1"
+            placeholder="例: 1009000"
+          >
         </div>
-        <div class="field">
+
+        <div>
           <label for="manualDate">プレイ日（任意）</label>
           <input id="manualDate" type="date">
         </div>
-      </div>
-      <div class="actions">
-        <button class="primary" id="addManualBtn">スコアを保存</button>
-        <button id="clearManualFormBtn">入力をクリア</button>
-      </div>
-      <p class="status" id="manualStatus"></p>
+
+        <p>
+          <button type="button" id="addManualBtn">スコアを保存</button>
+          <button type="button" id="clearManualFormBtn">入力をクリア</button>
+        </p>
+
+        <p id="manualStatus" class="description" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2>手動入力した記録</h2>
+        <div id="manualList">
+          <p class="description">まだ記録がないよ。</p>
+        </div>
+      </section>
     </section>
 
-    <section class="card">
-      <h2>手動入力した記録</h2>
-      <div id="manualList"><div class="empty">まだ記録がないよ。</div></div>
-    </section>
-  </section>
+    <section class="panel" id="panel-records" hidden>
+      <section class="card">
+        <h2>全スコア</h2>
 
-  <section class="panel" id="panel-records">
-    <section class="card">
-      <div class="field">
         <label for="recordSearch">曲名で絞り込み</label>
         <input id="recordSearch" placeholder="曲名を入力">
-      </div>
-      <div id="allRecords"><div class="empty">データを取得してね。</div></div>
+
+        <div id="allRecords">
+          <p class="description">まだ記録がないよ。</p>
+        </div>
+      </section>
     </section>
-  </section>
 
-  <p class="footer">Unofficial fan-made tool. CHUNITHM is a trademark of SEGA. Player data is retrieved from ChuniSupport.</p>
-</main>
+    <p class="note">
+      Unofficial fan-made tool. CHUNITHM is a trademark of SEGA.
+    </p>
+  </main>
 
-<div id="footer"></div>
+  <div id="footer"></div>
 
-<script src="/script/script.js"></script>
-<script src="/script/tools/chunithm/rating.js"></script>
+  <script src="/script/script.js"></script>
+  <script src="/script/tools/chunithm/rating.js"></script>
 </body>
 </html>
