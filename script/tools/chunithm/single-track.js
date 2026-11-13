@@ -20,6 +20,22 @@
         { score: 1009000, name: "SSS+", value: c => c + 2.15 }
     ];
 
+    // 譜面定数の入力チェック
+    function validConstant(c) {
+        if (c < 1 || c > 20) return false;
+
+        if (c <= 6) {
+            return Number.isInteger(c);
+        }
+
+        if (c <= 9) {
+            return Number.isInteger(c * 2);
+        }
+
+        return Number.isInteger(c * 10);
+    }
+
+    // レート計算
     function calculate(constant, score) {
         if (score <= 500000) return 0;
         if (score >= 1009000) return constant + 2.15;
@@ -33,8 +49,8 @@
                     (score - lower.score) /
                     (upper.score - lower.score);
 
-                const lowValue = lower.value(constant);
-                const highValue = upper.value(constant);
+                const lowValue = Math.max(0, lower.value(constant));
+                const highValue = Math.max(0, upper.value(constant));
 
                 return Math.max(
                     0,
@@ -46,6 +62,7 @@
         return constant + 2.15;
     }
 
+    // ランク判定
     function getRank(score) {
         for (let i = borders.length - 1; i >= 0; i--) {
             if (score >= borders[i].score) {
@@ -56,6 +73,7 @@
         return "ランクなし";
     }
 
+    // 計算実行
     form.addEventListener("submit", event => {
         event.preventDefault();
 
@@ -63,13 +81,13 @@
         const score = Number(scoreInput.value);
 
         if (
-            !Number.isFinite(constant) ||
-            !Number.isFinite(score) ||
-            constant <= 1 ||
-            constant > 20 ||
+            !validConstant(constant) ||
+            !Number.isInteger(score) ||
             score < 0 ||
             score > 1009000
         ) {
+            ratingOutput.textContent = "---";
+            rankOutput.textContent = "入力値を確認してね";
             return;
         }
 
@@ -80,6 +98,7 @@
             `${getRank(score)} ／ 小数第2位：${rating.toFixed(2)}`;
     });
 
+    // リセット
     form.addEventListener("reset", () => {
         ratingOutput.textContent = "---";
         rankOutput.textContent = "譜面定数とスコアを入力してね";
