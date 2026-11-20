@@ -1,3 +1,4 @@
+
 "use strict";
 
 // ========================================
@@ -26,12 +27,30 @@ const noteEl = document.getElementById("midi-note-count");
 
 const canvasRoll = document.getElementById("midi-piano-roll");
 const canvasKeys = document.getElementById("midi-piano-keys");
-
 const rollContainer = document.getElementById("midi-roll-container");
+const rollTrack = document.getElementById("midi-roll-track");
+const playhead = document.getElementById("midi-playhead");
 
 const convertBtn = document.getElementById("midi-convert");
 const downloadBtn = document.getElementById("midi-download");
 const progressEl = document.getElementById("midi-progress");
+
+// ========================================
+// 設定
+// ========================================
+
+const NOTE_HEIGHT = 10;
+const KEY_WIDTH = 80;
+const PIXELS_PER_BEAT = 60;
+
+const CHANNEL_COLORS = [
+    "#e74c3c", "#3498db", "#2ecc71", "#f1c40f",
+    "#9b59b6", "#e67e22", "#1abc9c", "#e84393",
+    "#7f8c8d", "#16a085", "#d35400", "#6c5ce7",
+    "#00cec9", "#fd79a8", "#636e72", "#a29bfe"
+];
+
+const WHITE_KEYS = [0, 2, 4, 5, 7, 9, 11];
 
 // ========================================
 // データ
@@ -42,6 +61,7 @@ let notes = [];
 
 let isLoaded = false;
 let isPlaying = false;
+let isStarting = false;
 
 let duration = 0;
 let currentTime = 0;
@@ -52,22 +72,15 @@ let startTime = 0;
 let startPosition = 0;
 
 let rafId = null;
-
 let playbackGeneration = 0;
 
-let mp3Blob = null;
 let mp3Url = null;
 
-// ========================================
-// 設定
-// ========================================
+let tempoEvents = [];
+let timeSignatureEvents = [];
 
-const NOTE_HEIGHT = 10;
-const KEY_WIDTH = 80;
-
-const WHITE_KEYS = [0, 2, 4, 5, 7, 9, 11];
-
-const PIXELS_PER_SECOND = 100;
+const PITCH_MIN = 0;
+const PITCH_MAX = 127;
 
 // ========================================
 // 初期化
@@ -80,7 +93,10 @@ if (
     !stopBtn ||
     !seekBar ||
     !canvasRoll ||
-    !canvasKeys
+    !canvasKeys ||
+    !rollContainer ||
+    !rollTrack ||
+    !playhead
 ) {
     throw new Error("MIDI Player: 必要なHTML要素が見つからない");
 }
@@ -93,9 +109,7 @@ const ctxKeys = canvasKeys.getContext("2d");
 // ========================================
 
 function formatTime(sec) {
-    if (!Number.isFinite(sec) || sec < 0) {
-        sec = 0;
-    }
+    if (!Number.isFinite(sec) || sec < 0) sec = 0;
 
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
@@ -103,25 +117,100 @@ function formatTime(sec) {
     return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-// ========================================
-// 再生位置
-// ========================================
-
 function getSpeed() {
-    const speed = parseFloat(speedEl.value);
+    const speed = Number(speedEl.value);
 
     return Number.isFinite(speed) && speed > 0
         ? speed
         : 1;
 }
 
-function getCurrentPosition() {
-    if (!isPlaying) {
-        return currentTime;
+function getZoom() {
+    return Number(zoomEl.value) || 1;
+}
+
+// ========================================
+// テンポ・拍子
+// ========================================
+
+// 秒数を4分音符単位の拍数に変換
+function secondsToBeats(seconds) {
+    if (!tempoEvents.length) {
+        return seconds * 2;
     }
 
-    const elapsed =
-        (performance.now() - startTime) / 1000;
+    let beats = 0;
+    let previousTime = 0;
+    let bpm = tempoEvents[0].bpm;
+
+    for (let i = 1; i < tempoEvents.length; i++) {
+        const event = tempoEvents[i];
+
+        if (seconds <= event.time) break;
+
+        const segmentEnd = Math.min(seconds, event.time);
+
+        beats += (segmentEnd - previousTime) * bpm / 60;
+
+        previousTime = event.time;
+        bpm = event.bpm;
+    }
+
+    beats += Math.max(0, seconds - previousTime) * bpm / 60;
+
+    return beats;
+}
+
+// 拍数を秒数に変換
+function beatsToSeconds(beats) {
+    if (!tempoEvents.length) {
+        return beats * 0.5;
+    }
+
+    let seconds = 0;
+    let previousBeat = 0;
+    let bpm = tempoEvents[0].bpm;
+
+    for (let i = 1; i < tempoEvents.length; i++) {
+        const event = tempoEvents[i];
+        const eventBeat = secondsToBeats(event.time);
+
+        if (beats <= eventBeat) break;
+
+        seconds += (eventBeat - previousBeat) * 60 / bpm;
+
+        previousBeat = eventBeat;
+        bpm = event.bpm;
+    }
+
+    seconds += Math.max(0, beats - previousBeat) * 60 / bpm;
+
+    return seconds;
+}
+
+// 秒数をロール上のX座標に変換
+function timeToX(seconds) {
+    return secondsToBeats(seconds) * PIXELS_PER_BEAT * getZoom();
+}
+
+// ========================================
+// チャンネルカラー
+// ========================================
+
+function getChannelColor(channel) {
+    return CHANNEL_COLORS[
+        ((channel % 16) + 16) % 16
+    ];
+}
+
+// ========================================
+// 再生位置
+// ========================================
+
+function getCurrentPosition() {
+    if (!isPlaying) return currentTime;
+
+    const elapsed = (performance.now() - startTime) / 1000;
 
     return Math.min(
         startPosition + elapsed * getSpeed(),
@@ -130,37 +219,56 @@ function getCurrentPosition() {
 }
 
 // ========================================
-// UI更新
+// UI
 // ========================================
 
 function updateUI(time) {
-    currentTime = Math.max(
-        0,
-        Math.min(time, duration)
-    );
+    currentTime = Math.max(0, Math.min(time, duration));
 
     currentTimeEl.textContent = formatTime(currentTime);
 
     seekBar.value = duration > 0
         ? (currentTime / duration) * 100
         : 0;
+
+    updatePlayhead();
 }
 
 function updateButtons() {
-    playBtn.disabled = !isLoaded || isPlaying;
+    playBtn.disabled = !isLoaded || isPlaying || isStarting;
     pauseBtn.disabled = !isPlaying;
     stopBtn.disabled = !isLoaded;
     convertBtn.disabled = !isLoaded;
 }
 
 // ========================================
+// 再生位置の赤い線
+// ========================================
+
+function updatePlayhead() {
+    if (!isLoaded) {
+        playhead.style.display = "none";
+        return;
+    }
+
+    playhead.style.left = `${timeToX(currentTime)}px`;
+    playhead.style.display = "block";
+}
+
+// ========================================
 // 音源
 // ========================================
 
+function resetSynth() {
+    if (!synth) return;
+
+    synth.releaseAll();
+    synth.dispose();
+    synth = null;
+}
+
 function createSynth() {
-    if (synth) {
-        synth.dispose();
-    }
+    resetSynth();
 
     synth = new Tone.PolySynth(Tone.Synth, {
         oscillator: {
@@ -177,15 +285,6 @@ function createSynth() {
     synth.volume.value = -8;
 }
 
-// 予約済みの音を含めて音源を破棄
-function resetSynth() {
-    if (synth) {
-        synth.releaseAll();
-        synth.dispose();
-        synth = null;
-    }
-}
-
 // ========================================
 // MIDI読み込み
 // ========================================
@@ -197,13 +296,15 @@ midiFile.addEventListener("change", async (e) => {
 
     stop();
 
+    isLoaded = false;
+    updateButtons();
+
     try {
         if (typeof Midi === "undefined") {
             throw new Error("MIDIライブラリが読み込まれていない");
         }
 
         const arrayBuffer = await file.arrayBuffer();
-
         const parsedMidi = new Midi(arrayBuffer);
 
         const loadedNotes = [];
@@ -215,7 +316,10 @@ midiFile.addEventListener("change", async (e) => {
                     duration: note.duration,
                     midi: note.midi,
                     velocity: note.velocity,
-                    track: trackIndex
+                    track: trackIndex,
+                    channel: Number.isInteger(track.channel)
+                        ? track.channel
+                        : 0
                 });
             });
         });
@@ -231,39 +335,83 @@ midiFile.addEventListener("change", async (e) => {
             0
         );
 
+        // テンポイベント
+        tempoEvents = (parsedMidi.header.tempos || [])
+            .map(event => ({
+                time: event.time,
+                bpm: event.bpm
+            }))
+            .filter(event =>
+                Number.isFinite(event.time) &&
+                Number.isFinite(event.bpm) &&
+                event.bpm > 0
+            )
+            .sort((a, b) => a.time - b.time);
+
+        if (!tempoEvents.length) {
+            tempoEvents = [{ time: 0, bpm: 120 }];
+        }
+
+        if (tempoEvents[0].time > 0) {
+            tempoEvents.unshift({ time: 0, bpm: 120 });
+        }
+
+        // 拍子イベント
+        timeSignatureEvents =
+            (parsedMidi.header.timeSignatures || [])
+                .map(event => ({
+                    time: event.time,
+                    numerator: event.timeSignature[0],
+                    denominator: event.timeSignature[1]
+                }))
+                .filter(event =>
+                    Number.isFinite(event.time) &&
+                    event.numerator > 0 &&
+                    event.denominator > 0
+                )
+                .sort((a, b) => a.time - b.time);
+
+        if (!timeSignatureEvents.length) {
+            timeSignatureEvents = [{
+                time: 0,
+                numerator: 4,
+                denominator: 4
+            }];
+        }
+
+        if (timeSignatureEvents[0].time > 0) {
+            timeSignatureEvents.unshift({
+                time: 0,
+                numerator: 4,
+                denominator: 4
+            });
+        }
+
         currentTime = 0;
         startPosition = 0;
 
         isLoaded = true;
 
-        // MIDI情報
         totalTimeEl.textContent = formatTime(duration);
 
         titleEl.textContent =
-            parsedMidi.name || file.name.replace(/\.(mid|midi)$/i, "");
+            parsedMidi.name ||
+            file.name.replace(/\.(mid|midi)$/i, "");
 
         tempoEl.textContent =
-            parsedMidi.header.tempos?.[0]?.bpm
-                ? parsedMidi.header.tempos[0].bpm
-                : "-";
+            parsedMidi.header.tempos?.[0]?.bpm ?? "-";
 
-        const timeSignature =
+        const firstSignature =
             parsedMidi.header.timeSignatures?.[0]?.timeSignature;
 
-        timeSigEl.textContent = timeSignature
-            ? timeSignature.join("/")
+        timeSigEl.textContent = firstSignature
+            ? firstSignature.join("/")
             : "-";
 
         lengthEl.textContent = formatTime(duration);
-
         trackEl.textContent = parsedMidi.tracks.length;
-
         noteEl.textContent = notes.length;
 
-        // シークバー
-        seekBar.value = 0;
-
-        // MP3関連
         progressEl.textContent = "";
 
         if (mp3Url) {
@@ -271,14 +419,16 @@ midiFile.addEventListener("change", async (e) => {
             mp3Url = null;
         }
 
-        mp3Blob = null;
-
+        downloadBtn.removeAttribute("href");
         downloadBtn.style.display = "none";
 
         updateUI(0);
         updateButtons();
 
         drawRoll();
+        drawKeys();
+
+        rollContainer.scrollLeft = 0;
 
         console.log("MIDI loaded:", parsedMidi);
 
@@ -288,15 +438,11 @@ midiFile.addEventListener("change", async (e) => {
         isLoaded = false;
         midiData = null;
         notes = [];
-
         duration = 0;
 
         updateButtons();
 
-        alert(
-            "MIDIファイルを読み込めなかった\n\n" +
-            error.message
-        );
+        alert("MIDIファイルを読み込めなかった\n\n" + error.message);
     }
 });
 
@@ -305,22 +451,22 @@ midiFile.addEventListener("change", async (e) => {
 // ========================================
 
 async function play() {
-    if (!isLoaded || isPlaying) return;
+    if (!isLoaded || isPlaying || isStarting) return;
 
     if (currentTime >= duration) {
         currentTime = 0;
     }
 
+    isStarting = true;
+    updateButtons();
+
     try {
         await Tone.start();
 
-        resetSynth();
         createSynth();
 
         const speed = getSpeed();
-
         const offset = currentTime;
-
         const now = Tone.now();
 
         startPosition = offset;
@@ -331,24 +477,17 @@ async function play() {
         const generation = playbackGeneration;
 
         isPlaying = true;
+        isStarting = false;
 
-        // ノート予約
         notes.forEach(note => {
             const noteEnd = note.time + note.duration;
 
-            if (noteEnd <= offset) {
-                return;
-            }
+            if (noteEnd <= offset) return;
 
-            const noteStart = Math.max(
-                note.time,
-                offset
-            );
+            const noteStart = Math.max(note.time, offset);
 
             const delay = (noteStart - offset) / speed;
-
-            const noteDuration =
-                (noteEnd - noteStart) / speed;
+            const noteDuration = (noteEnd - noteStart) / speed;
 
             if (noteDuration <= 0) return;
 
@@ -369,16 +508,15 @@ async function play() {
         });
 
         updateButtons();
-
         updatePlaybackUI(generation);
 
     } catch (error) {
         console.error("Playback error:", error);
 
         isPlaying = false;
+        isStarting = false;
 
         resetSynth();
-
         updateButtons();
 
         alert("再生できなかった\n\n" + error.message);
@@ -395,14 +533,13 @@ function pause() {
     currentTime = getCurrentPosition();
 
     isPlaying = false;
-
     playbackGeneration++;
 
     cancelAnimationFrame(rafId);
-
     resetSynth();
 
     updateUI(currentTime);
+    drawKeys();
     updateButtons();
 }
 
@@ -412,31 +549,33 @@ function pause() {
 
 function stop() {
     isPlaying = false;
+    isStarting = false;
 
     playbackGeneration++;
 
     cancelAnimationFrame(rafId);
-
     resetSynth();
 
     currentTime = 0;
     startPosition = 0;
 
     updateUI(0);
+    drawKeys();
     updateButtons();
 
-    if (rollContainer) {
-        rollContainer.scrollLeft = 0;
+    rollContainer.scrollLeft = 0;
+
+    if (!isLoaded) {
+        playhead.style.display = "none";
     }
 }
 
 // ========================================
-// 再生時間更新
+// 再生中の更新
 // ========================================
 
 function updatePlaybackUI(generation) {
     if (!isPlaying) return;
-
     if (generation !== playbackGeneration) return;
 
     currentTime = getCurrentPosition();
@@ -448,18 +587,16 @@ function updatePlaybackUI(generation) {
 
     updateUI(currentTime);
 
-    // ピアノロール追従
-    const zoom = parseFloat(zoomEl.value) || 1;
+    // 再生位置に合わせて横スクロール
+    const viewX = timeToX(currentTime);
 
-    const viewX =
-        currentTime * PIXELS_PER_SECOND * zoom;
+    rollContainer.scrollLeft = Math.max(
+        0,
+        viewX - rollContainer.clientWidth * 0.3
+    );
 
-    if (rollContainer) {
-        rollContainer.scrollLeft = Math.max(
-            0,
-            viewX - rollContainer.clientWidth * 0.3
-        );
-    }
+    // 鍵盤の発光を更新
+    drawKeys();
 
     rafId = requestAnimationFrame(() => {
         updatePlaybackUI(generation);
@@ -480,21 +617,18 @@ seekBar.addEventListener("input", () => {
 
     if (wasPlaying) {
         isPlaying = false;
-
         playbackGeneration++;
 
         cancelAnimationFrame(rafId);
-
         resetSynth();
     }
 
     currentTime = position;
 
     updateUI(position);
+    drawKeys();
 
-    if (wasPlaying) {
-        play();
-    }
+    if (wasPlaying) play();
 });
 
 // ========================================
@@ -502,53 +636,96 @@ seekBar.addEventListener("input", () => {
 // ========================================
 
 playBtn.addEventListener("click", play);
-
 pauseBtn.addEventListener("click", pause);
-
 stopBtn.addEventListener("click", stop);
 
 // ========================================
-// ピアノロール
+// ピッチ範囲
 // ========================================
 
 function getPitchRange() {
-    if (notes.length === 0) {
-        return {
-            min: 21,
-            max: 108
-        };
-    }
-
-    const min = Math.min(
-        ...notes.map(n => n.midi)
-    );
-
-    const max = Math.max(
-        ...notes.map(n => n.midi)
-    );
-
     return {
-        min: Math.min(21, min),
-        max: Math.max(108, max)
+        min: PITCH_MIN,
+        max: PITCH_MAX
     };
 }
+
+// ========================================
+// 拍子イベントを使った小節線の計算
+// ========================================
+
+function getMeasureLines() {
+    const lines = [];
+
+    let currentBeat = 0;
+    let previousTime = 0;
+
+    let numerator = 4;
+    let denominator = 4;
+
+    for (let i = 0; i < timeSignatureEvents.length; i++) {
+        const event = timeSignatureEvents[i];
+
+        const eventBeat = secondsToBeats(event.time);
+
+        const beatLength = 4 / denominator;
+        const barLength = numerator * beatLength;
+
+        // 拍子変更位置までの小節線
+        let beat = currentBeat;
+
+        while (beat <= eventBeat + 0.0001) {
+            if (beat >= currentBeat - 0.0001) {
+                lines.push({
+                    beat,
+                    bar: true
+                });
+            }
+
+            beat += barLength;
+        }
+
+        currentBeat = eventBeat;
+        previousTime = event.time;
+
+        numerator = event.numerator;
+        denominator = event.denominator;
+    }
+
+    const beatLength = 4 / denominator;
+    const barLength = numerator * beatLength;
+
+    let beat = currentBeat + barLength;
+
+    while (beat <= secondsToBeats(duration) + 0.0001) {
+        lines.push({
+            beat,
+            bar: true
+        });
+
+        beat += barLength;
+    }
+
+    return lines;
+}
+
+// ========================================
+// ピアノロール描画
+// ========================================
 
 function drawRoll() {
     if (!isLoaded) return;
 
-    const zoom = parseFloat(zoomEl.value) || 1;
-
-    const width = Math.max(
-        2000,
-        Math.ceil(
-            duration * PIXELS_PER_SECOND * zoom
-        )
-    );
-
+    const zoom = getZoom();
     const range = getPitchRange();
 
     const height =
         (range.max - range.min + 1) * NOTE_HEIGHT;
+
+    const width = Math.max(
+        2000,
+        Math.ceil(timeToX(duration) + 100)
+    );
 
     canvasRoll.width = width;
     canvasRoll.height = height;
@@ -562,32 +739,26 @@ function drawRoll() {
     canvasKeys.style.width = `${KEY_WIDTH}px`;
     canvasKeys.style.height = `${height}px`;
 
+    rollTrack.style.width = `${width}px`;
+    rollTrack.style.height = `${height}px`;
+
+    playhead.style.height = `${height}px`;
+
     ctxRoll.clearRect(0, 0, width, height);
 
-    // 横線・鍵盤背景
-    for (
-        let midi = range.min;
-        midi <= range.max;
-        midi++
-    ) {
-        const y =
-            (range.max - midi) * NOTE_HEIGHT;
+    // 鍵盤ごとの背景
+    for (let midi = range.min; midi <= range.max; midi++) {
+        const y = (range.max - midi) * NOTE_HEIGHT;
 
-        const isBlack =
-            !WHITE_KEYS.includes(midi % 12);
+        const isBlack = !WHITE_KEYS.includes(midi % 12);
 
         ctxRoll.fillStyle = isBlack
             ? "rgba(0,0,0,0.08)"
             : "rgba(255,255,255,0.03)";
 
-        ctxRoll.fillRect(
-            0,
-            y,
-            width,
-            NOTE_HEIGHT
-        );
+        ctxRoll.fillRect(0, y, width, NOTE_HEIGHT);
 
-        ctxRoll.strokeStyle = "rgba(128,128,128,0.25)";
+        ctxRoll.strokeStyle = "rgba(128,128,128,0.2)";
         ctxRoll.lineWidth = 1;
 
         ctxRoll.beginPath();
@@ -596,54 +767,68 @@ function drawRoll() {
         ctxRoll.stroke();
     }
 
-    // 時間目盛り
-    ctxRoll.font = "12px sans-serif";
-    ctxRoll.fillStyle = "#888";
+    // 拍の線
+    const totalBeats = secondsToBeats(duration);
+    const signature = timeSignatureEvents[0] || {
+        numerator: 4,
+        denominator: 4
+    };
 
-    const secondsStep = zoom >= 2 ? 1 : 5;
+    const beatLength = 4 / signature.denominator;
+
+    ctxRoll.font = "11px sans-serif";
 
     for (
-        let sec = 0;
-        sec <= duration;
-        sec += secondsStep
+        let beat = 0;
+        beat <= totalBeats + 0.001;
+        beat += beatLength
     ) {
-        const x =
-            sec * PIXELS_PER_SECOND * zoom;
+        const x = beat * PIXELS_PER_BEAT * zoom;
 
-        ctxRoll.strokeStyle = "rgba(128,128,128,0.3)";
+        ctxRoll.strokeStyle = "rgba(128,128,128,0.28)";
+        ctxRoll.lineWidth = 1;
 
         ctxRoll.beginPath();
         ctxRoll.moveTo(x, 0);
         ctxRoll.lineTo(x, height);
         ctxRoll.stroke();
-
-        ctxRoll.fillText(
-            formatTime(sec),
-            x + 3,
-            14
-        );
     }
+
+    // 小節の線を濃く描画
+    const measureLines = getMeasureLines();
+
+    measureLines.forEach(line => {
+        const x = line.beat * PIXELS_PER_BEAT * zoom;
+
+        ctxRoll.strokeStyle = "rgba(100,100,100,0.75)";
+        ctxRoll.lineWidth = 2;
+
+        ctxRoll.beginPath();
+        ctxRoll.moveTo(x, 0);
+        ctxRoll.lineTo(x, height);
+        ctxRoll.stroke();
+    });
 
     // ノート描画
     notes.forEach(note => {
-        const x =
-            note.time * PIXELS_PER_SECOND * zoom;
+        const x = timeToX(note.time);
 
         const w = Math.max(
             2,
-            note.duration * PIXELS_PER_SECOND * zoom
+            (timeToX(note.time + note.duration) - x)
         );
 
-        const y =
-            (range.max - note.midi) * NOTE_HEIGHT;
+        const y = (range.max - note.midi) * NOTE_HEIGHT;
 
         const velocity = Math.max(
             0.2,
             Math.min(note.velocity, 1)
         );
 
-        ctxRoll.fillStyle =
-            `rgba(147,112,219,${0.4 + velocity * 0.5})`;
+        const color = getChannelColor(note.channel);
+
+        ctxRoll.globalAlpha = 0.4 + velocity * 0.5;
+        ctxRoll.fillStyle = color;
 
         ctxRoll.fillRect(
             x,
@@ -651,60 +836,96 @@ function drawRoll() {
             w,
             NOTE_HEIGHT - 2
         );
+
+        ctxRoll.globalAlpha = 1;
     });
 
-    drawKeys(range);
+    // 時刻表示
+    ctxRoll.fillStyle = "#888";
+    ctxRoll.font = "11px sans-serif";
+
+    const labelStep = 4;
+
+    for (
+        let beat = 0;
+        beat <= totalBeats;
+        beat += labelStep
+    ) {
+        const x = beat * PIXELS_PER_BEAT * zoom;
+        const sec = beatsToSeconds(beat);
+
+        ctxRoll.fillText(formatTime(sec), x + 3, 12);
+    }
+
+    updatePlayhead();
 }
 
 // ========================================
-// 鍵盤描画
+// 鍵盤描画・発光
 // ========================================
 
-function drawKeys(range) {
+function drawKeys() {
+    const range = getPitchRange();
     const height = canvasKeys.height;
 
-    ctxKeys.clearRect(
-        0,
-        0,
-        KEY_WIDTH,
-        height
-    );
+    if (!height) return;
 
-    for (
-        let midi = range.min;
-        midi <= range.max;
-        midi++
-    ) {
-        const y =
-            (range.max - midi) * NOTE_HEIGHT;
+    ctxKeys.clearRect(0, 0, KEY_WIDTH, height);
 
-        const isBlack =
-            !WHITE_KEYS.includes(midi % 12);
+    // 現在鳴っている音を取得
+    const activeNotes = isPlaying
+        ? notes.filter(note =>
+            currentTime >= note.time &&
+            currentTime < note.time + note.duration
+        )
+        : [];
 
-        ctxKeys.fillStyle = isBlack
-            ? "#333"
-            : "#fff";
+    for (let midi = range.min; midi <= range.max; midi++) {
+        const y = (range.max - midi) * NOTE_HEIGHT;
 
-        ctxKeys.fillRect(
-            0,
-            y,
-            KEY_WIDTH,
-            NOTE_HEIGHT
-        );
+        const isBlack = !WHITE_KEYS.includes(midi % 12);
 
-        ctxKeys.strokeStyle = "#aaa";
+        const activeChannels = [
+            ...new Set(
+                activeNotes
+                    .filter(note => note.midi === midi)
+                    .map(note => note.channel)
+            )
+        ];
 
-        ctxKeys.strokeRect(
-            0,
-            y,
-            KEY_WIDTH,
-            NOTE_HEIGHT
-        );
+        // 通常の鍵盤色
+        ctxKeys.fillStyle = isBlack ? "#333" : "#fff";
+        ctxKeys.fillRect(0, y, KEY_WIDTH, NOTE_HEIGHT);
 
+        // 発音中のチャンネルカラー
+        if (activeChannels.length === 1) {
+            ctxKeys.fillStyle = getChannelColor(activeChannels[0]);
+            ctxKeys.fillRect(0, y, KEY_WIDTH, NOTE_HEIGHT);
+        } else if (activeChannels.length > 1) {
+            const segmentWidth = KEY_WIDTH / activeChannels.length;
+
+            activeChannels.forEach((channel, index) => {
+                ctxKeys.fillStyle = getChannelColor(channel);
+
+                ctxKeys.fillRect(
+                    index * segmentWidth,
+                    y,
+                    segmentWidth,
+                    NOTE_HEIGHT
+                );
+            });
+        }
+
+        // 鍵盤の境界線
+        ctxKeys.strokeStyle = "#888";
+        ctxKeys.lineWidth = 0.7;
+        ctxKeys.strokeRect(0, y, KEY_WIDTH, NOTE_HEIGHT);
+
+        // Cの音名
         if (midi % 12 === 0) {
-            ctxKeys.fillStyle = isBlack
+            ctxKeys.fillStyle = activeChannels.length
                 ? "#fff"
-                : "#222";
+                : (isBlack ? "#fff" : "#222");
 
             ctxKeys.font = "10px sans-serif";
 
@@ -722,28 +943,31 @@ function drawKeys(range) {
 // ========================================
 
 zoomEl.addEventListener("input", () => {
+    const oldX = timeToX(currentTime);
+
     drawRoll();
+
+    rollContainer.scrollLeft = Math.max(
+        0,
+        oldX - rollContainer.clientWidth * 0.3
+    );
 });
 
 // ========================================
-// 速度変更
+// 再生速度変更
 // ========================================
 
 speedEl.addEventListener("input", () => {
     if (!isPlaying) return;
 
-    // 変更前の再生位置を保存
     currentTime = getCurrentPosition();
 
     isPlaying = false;
-
     playbackGeneration++;
 
     cancelAnimationFrame(rafId);
-
     resetSynth();
 
-    // 新しい速度で再生し直す
     play();
 });
 
@@ -763,7 +987,6 @@ async function convertToMp3() {
     }
 
     convertBtn.disabled = true;
-
     progressEl.textContent = "音声を生成中...";
 
     try {
@@ -773,11 +996,8 @@ async function convertToMp3() {
             (duration + 1) * sampleRate
         );
 
-        // 長時間の音声によるメモリ不足を防止
         if (frameCount > sampleRate * 600) {
-            throw new Error(
-                "10分を超えるMIDIは変換できない"
-            );
+            throw new Error("10分を超えるMIDIは変換できない");
         }
 
         const AudioContextClass =
@@ -785,9 +1005,7 @@ async function convertToMp3() {
             window.webkitOfflineAudioContext;
 
         if (!AudioContextClass) {
-            throw new Error(
-                "OfflineAudioContextに対応していない"
-            );
+            throw new Error("OfflineAudioContextに対応していない");
         }
 
         const offlineContext = new AudioContextClass(
@@ -796,20 +1014,14 @@ async function convertToMp3() {
             sampleRate
         );
 
-        const masterGain =
-            offlineContext.createGain();
-
+        const masterGain = offlineContext.createGain();
         masterGain.gain.value = 0.7;
-
         masterGain.connect(offlineContext.destination);
 
         // ノートを音声化
         notes.forEach(note => {
-            const oscillator =
-                offlineContext.createOscillator();
-
-            const gain =
-                offlineContext.createGain();
+            const oscillator = offlineContext.createOscillator();
+            const gain = offlineContext.createGain();
 
             const start = Math.max(0, note.time);
 
@@ -823,10 +1035,7 @@ async function convertToMp3() {
             oscillator.type = "sine";
 
             oscillator.frequency.value =
-                440 * Math.pow(
-                    2,
-                    (note.midi - 69) / 12
-                );
+                440 * Math.pow(2, (note.midi - 69) / 12);
 
             const velocity = Math.max(
                 0,
@@ -835,20 +1044,14 @@ async function convertToMp3() {
 
             const volume = velocity * 0.2;
 
-            gain.gain.setValueAtTime(
-                volume,
-                start
-            );
+            gain.gain.setValueAtTime(volume, start);
 
             gain.gain.setValueAtTime(
                 volume,
                 Math.max(start, end - 0.03)
             );
 
-            gain.gain.linearRampToValueAtTime(
-                0,
-                end
-            );
+            gain.gain.linearRampToValueAtTime(0, end);
 
             oscillator.connect(gain);
             gain.connect(masterGain);
@@ -862,52 +1065,33 @@ async function convertToMp3() {
 
         progressEl.textContent = "MP3にエンコード中...";
 
-        const mp3encoder = new lamejs.Mp3Encoder(
+        const encoder = new lamejs.Mp3Encoder(
             1,
             sampleRate,
             128
         );
 
         const channel = renderedBuffer.getChannelData(0);
-
         const mp3Data = [];
 
         const blockSize = 1152;
+        const totalBlocks = Math.ceil(channel.length / blockSize);
 
-        const totalBlocks = Math.ceil(
-            channel.length / blockSize
-        );
-
-        for (
-            let block = 0;
-            block < totalBlocks;
-            block++
-        ) {
+        for (let block = 0; block < totalBlocks; block++) {
             const start = block * blockSize;
+            const end = Math.min(start + blockSize, channel.length);
 
-            const end = Math.min(
-                start + blockSize,
-                channel.length
-            );
-
-            const pcm = new Int16Array(
-                end - start
-            );
+            const pcm = new Int16Array(end - start);
 
             for (let i = start; i < end; i++) {
-                const sample = Math.max(
-                    -1,
-                    Math.min(1, channel[i])
-                );
+                const sample = Math.max(-1, Math.min(1, channel[i]));
 
-                pcm[i - start] =
-                    sample < 0
-                        ? sample * 32768
-                        : sample * 32767;
+                pcm[i - start] = sample < 0
+                    ? sample * 32768
+                    : sample * 32767;
             }
 
-            const encoded =
-                mp3encoder.encodeBuffer(pcm);
+            const encoded = encoder.encodeBuffer(pcm);
 
             if (encoded.length > 0) {
                 mp3Data.push(encoded);
@@ -915,35 +1099,27 @@ async function convertToMp3() {
 
             if (block % 100 === 0) {
                 progressEl.textContent =
-                    `MP3変換中... ${Math.floor(
-                        (block / totalBlocks) * 100
-                    )}%`;
+                    `MP3変換中... ${Math.floor(block / totalBlocks * 100)}%`;
 
-                await new Promise(resolve =>
-                    setTimeout(resolve, 0)
-                );
+                await new Promise(resolve => setTimeout(resolve, 0));
             }
         }
 
-        const end = mp3encoder.flush();
+        const endData = encoder.flush();
 
-        if (end.length > 0) {
-            mp3Data.push(end);
+        if (endData.length > 0) {
+            mp3Data.push(endData);
         }
 
-        mp3Blob = new Blob(
-            mp3Data,
-            {
-                type: "audio/mpeg"
-            }
-        );
+        const blob = new Blob(mp3Data, {
+            type: "audio/mpeg"
+        });
 
-        // 古いURLを破棄
         if (mp3Url) {
             URL.revokeObjectURL(mp3Url);
         }
 
-        mp3Url = URL.createObjectURL(mp3Blob);
+        mp3Url = URL.createObjectURL(blob);
 
         downloadBtn.href = mp3Url;
         downloadBtn.style.display = "inline-block";
@@ -953,13 +1129,9 @@ async function convertToMp3() {
     } catch (error) {
         console.error("MP3 conversion error:", error);
 
-        progressEl.textContent =
-            "変換に失敗: " + error.message;
+        progressEl.textContent = "変換に失敗: " + error.message;
 
-        alert(
-            "MP3変換に失敗した\n\n" +
-            error.message
-        );
+        alert("MP3変換に失敗した\n\n" + error.message);
 
     } finally {
         convertBtn.disabled = !isLoaded;
@@ -970,10 +1142,7 @@ async function convertToMp3() {
 // MP3変換ボタン
 // ========================================
 
-convertBtn.addEventListener(
-    "click",
-    convertToMp3
-);
+convertBtn.addEventListener("click", convertToMp3);
 
 // ========================================
 // 初期状態
