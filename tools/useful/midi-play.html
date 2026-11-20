@@ -7,22 +7,39 @@
 <title>MIDI Player</title>
 
 <link rel="stylesheet" href="/style/style.css">
-<link rel="stylesheet" hres="/style/tools.css">
-<link rel="icon" href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564">
+<link rel="stylesheet" href="/style/tools.css">
 
+<link
+    rel="icon"
+    href="https://shiratama-kotone.wikidot.com/local--favicon/favicon.gif?86564"
+>
+
+<!-- Tone.js -->
 <script src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2/build/Midi.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
-</head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XGM94MF3RY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-XGM94MF3RY');
+<!-- MIDI.js -->
+<script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2/build/Midi.min.js"></script>
+
+<!-- lamejs -->
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XGM94MF3RY"></script>
+
+<script>
+window.dataLayer = window.dataLayer || [];
+
+function gtag() {
+    dataLayer.push(arguments);
+}
+
+gtag('js', new Date());
+
+gtag('config', 'G-XGM94MF3RY');
 </script>
+
+</head>
+
 <body>
 
 <div id="header"></div>
@@ -33,29 +50,51 @@
 
 <h1>MIDI Player</h1>
 
+<!-- MIDIファイル選択 -->
+
 <label class="midi-upload">
+
 <input
-type="file"
-id="midi-file"
-accept=".mid,.midi">
+    type="file"
+    id="midi-file"
+    accept=".mid,.midi,audio/midi"
+>
+
 <span>MIDIファイルを選択</span>
+
 </label>
+
+<!-- 再生ボタン -->
 
 <div class="midi-buttons">
 
-<button id="midi-play" disabled>
+<button
+    id="midi-play"
+    type="button"
+    disabled
+>
 ▶ 再生
 </button>
 
-<button id="midi-pause" disabled>
+<button
+    id="midi-pause"
+    type="button"
+    disabled
+>
 ⏸ 一時停止
 </button>
 
-<button id="midi-stop" disabled>
+<button
+    id="midi-stop"
+    type="button"
+    disabled
+>
 ■ 停止
 </button>
 
 </div>
+
+<!-- シークバー -->
 
 <div class="midi-seek">
 
@@ -64,18 +103,21 @@ accept=".mid,.midi">
 </span>
 
 <input
-type="range"
-id="midi-seek-bar"
-min="0"
-max="100"
-value="0"
-step="0.01">
+    type="range"
+    id="midi-seek-bar"
+    min="0"
+    max="100"
+    value="0"
+    step="0.01"
+>
 
 <span id="midi-total-time">
 0:00
 </span>
 
 </div>
+
+<!-- ツールバー -->
 
 <div class="midi-toolbar">
 
@@ -84,12 +126,13 @@ step="0.01">
 ズーム
 
 <input
-type="range"
-id="midi-zoom"
-min="0.5"
-max="5"
-step="0.1"
-value="1">
+    type="range"
+    id="midi-zoom"
+    min="0.5"
+    max="5"
+    step="0.1"
+    value="1"
+>
 
 </label>
 
@@ -98,16 +141,19 @@ value="1">
 速度
 
 <input
-type="range"
-id="midi-speed"
-min="0.5"
-max="2"
-step="0.05"
-value="1">
+    type="range"
+    id="midi-speed"
+    min="0.5"
+    max="2"
+    step="0.05"
+    value="1"
+>
 
 </label>
 
 </div>
+
+<!-- ピアノロール -->
 
 <div id="midi-roll-container">
 
@@ -117,34 +163,35 @@ value="1">
 
 </div>
 
+<!-- MP3変換 -->
+
 <div class="midi-buttons">
 
 <button
-id="midi-convert"
-disabled>
-
+    id="midi-convert"
+    type="button"
+    disabled
+>
 MP3へ変換
-
 </button>
 
 <a
-id="midi-download"
-download="music.mp3"
-style="display:none;">
-
-<button>
-
+    id="midi-download"
+    download="music.mp3"
+    style="display:none;"
+>
 MP3をダウンロード
-
-</button>
-
 </a>
 
 </div>
 
 <div id="midi-progress"></div>
 
+<!-- MIDI情報 -->
+
 <table class="midi-info">
+
+<tbody>
 
 <tr>
 <th>曲名</th>
@@ -176,6 +223,8 @@ MP3をダウンロード
 <td id="midi-note-count">-</td>
 </tr>
 
+</tbody>
+
 </table>
 
 </div>
@@ -184,7 +233,11 @@ MP3をダウンロード
 
 <div id="footer"></div>
 
+<!-- 共通スクリプト -->
 <script src="/script/script.js"></script>
+
+<!-- MIDI Player -->
+<script src="/script/tools/midi-play.js"></script>
 
 </body>
 </html>
