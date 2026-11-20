@@ -350,29 +350,19 @@
   }
 
   // -------------------------
-  // .jsファイルの読み込み
+  // .jsonファイルの読み込み
   // -------------------------
 
   function parseImportedFile(source) {
-    const text = String(source).replace(/^\uFEFF/, "").trim();
-
-    const match = text.match(
-      /^(?:window|globalThis)\.CHUNITHM_DATA\s*=\s*(\{[\s\S]*\})\s*;?$/
-    );
-
-    if (!match) {
-      throw new Error(
-        "window.CHUNITHM_DATA = { ... }; の形式ではないよ。"
-      );
-    }
-
     let data;
 
     try {
-      data = JSON.parse(match[1]);
+      data = JSON.parse(
+        String(source).replace(/^\uFEFF/, "").trim()
+      );
     } catch (error) {
       throw new Error(
-        "データ部分をJSONとして読み取れなかったよ: " + error.message
+        "JSONの解析に失敗したよ: " + error.message
       );
     }
 
@@ -418,16 +408,19 @@
       }
 
       const difficulty = String(record.difficulty || "").toUpperCase();
+
       if (!DIFFS.includes(difficulty)) {
         throw new Error(number + "件目の難易度が正しくないよ。");
       }
 
       const constant = Number(record.const);
+
       if (!Number.isFinite(constant) || constant < 1 || constant > 20) {
         throw new Error(number + "件目の譜面定数が正しくないよ。");
       }
 
       const score = Number(record.score);
+
       if (!Number.isInteger(score) || score < 0 || score > 1010000) {
         throw new Error(number + "件目のスコアが正しくないよ。");
       }
@@ -440,28 +433,30 @@
     const file = $("dataFile").files?.[0];
 
     if (!file) {
-      $("importStatus").textContent = "先に .js ファイルを選択してね。";
+      $("importStatus").textContent =
+        "先に .json ファイルを選択してね。";
       return;
     }
 
     $("importBtn").disabled = true;
-    $("importStatus").textContent = "ファイルを読み込み中…";
+    $("importStatus").textContent = "JSONファイルを読み込み中…";
     clearError();
 
     try {
-      if (!file.name.toLowerCase().endsWith(".js")) {
-        throw new Error(".js ファイルを選択してね。");
+      if (!file.name.toLowerCase().endsWith(".json")) {
+        throw new Error(".json ファイルを選択してね。");
       }
 
       const source = await file.text();
       const data = parseImportedFile(source);
 
-      // JavaScriptとして実行せず、JSONデータとして読み取る。
       importedData = data;
       writeStorage(IMPORT_KEY, importedData);
 
       const count = Array.isArray(data.records.standard)
-        ? data.records.standard.filter(record => record.is_played !== false).length
+        ? data.records.standard.filter(
+            record => record.is_played !== false
+          ).length
         : data.records.best.length + data.records.new.length;
 
       $("importStatus").textContent =
@@ -476,7 +471,8 @@
       showError(error);
 
       $("importStatus").textContent =
-        "ファイルの読み込みに失敗したよ。";
+        "JSONファイルの読み込みに失敗したよ。";
+
     } finally {
       $("importBtn").disabled = false;
       $("dataFile").value = "";
