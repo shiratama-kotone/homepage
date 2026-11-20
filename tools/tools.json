@@ -41,6 +41,12 @@
     "category":"chunithm",
     "url":"/tools/chunithm/rating"
   },
+  {
+    "title":"CHUNITHM単曲レート計算",
+    "desc":"CHUNITHMの単曲レートを計算する",
+    "category":"chunithm",
+    "url":"/tools/chunithm/single-track"
+  },
     {
     "title":"画像変換",
     "desc":"画像ファイルの形式を変換する",

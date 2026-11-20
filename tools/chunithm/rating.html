@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -338,6 +339,7 @@
 <body>
   <main class="content" id="chuni-rating">
     <h1>CHUNITHM レート計算</h1>
+
     <p class="description">
       ChuniSupportのユーザーデータと手動入力したスコアをまとめて、BEST 30・NEW 20を計算するよ。
     </p>
@@ -348,19 +350,23 @@
           <span class="profile-label">プレイヤー</span>
           <span class="profile-value" id="playerName">手動入力モード</span>
         </div>
+
         <div class="profile-item">
           <span class="profile-label">RATING（BEST30＋NEW20）</span>
           <span class="profile-value" id="playerRating">0.00</span>
         </div>
+
         <div class="profile-item">
           <span class="profile-label">レベル</span>
           <span class="profile-value" id="playerLevel">--</span>
         </div>
+
         <div class="profile-item">
           <span class="profile-label">最終プレイ</span>
           <span class="profile-value" id="lastPlayed">--</span>
         </div>
       </div>
+
       <p class="description">
         RATINGはBEST 30枠＋NEW 20枠の合計50枠で計算。記録がない枠は0として扱うよ。
       </p>
@@ -370,50 +376,154 @@
       <h2>データ取得</h2>
 
       <h3>楽曲データ</h3>
-      <p class="description">曲名・譜面定数などの取得。ユーザーデータとは別に取得できるよ。</p>
+
+      <p class="description">
+        曲名・譜面定数などの取得。ユーザーデータとは別に取得できるよ。
+      </p>
+
       <div class="button-row">
-        <button type="button" id="loadSongsBtn">楽曲データを取得</button>
+        <button type="button" id="loadSongsBtn">
+          楽曲データを取得
+        </button>
       </div>
-      <p class="status" id="songsStatus" aria-live="polite">まだ取得していないよ。</p>
+
+      <p class="status" id="songsStatus" aria-live="polite">
+        まだ取得していないよ。
+      </p>
 
       <hr>
 
       <h3>ユーザーデータ（ChuniSupport）</h3>
+
       <div class="form-grid">
         <div>
           <label for="username">ユーザー名</label>
-          <input id="username" type="text" autocomplete="username" placeholder="ユーザー名">
+          <input
+            id="username"
+            type="text"
+            autocomplete="username"
+            placeholder="ユーザー名"
+          >
         </div>
+
         <div>
           <label for="token">APIトークン</label>
-          <input id="token" type="password" autocomplete="off" placeholder="APIトークン">
+          <input
+            id="token"
+            type="password"
+            autocomplete="off"
+            placeholder="APIトークン"
+          >
         </div>
       </div>
+
       <div class="button-row">
-        <button type="button" id="loadBtn">ユーザーデータを取得</button>
-        <button type="button" id="saveSettingsBtn">設定を保存</button>
-        <button type="button" id="clearTokenBtn">保存トークンを消去</button>
+        <button type="button" id="loadBtn">
+          ユーザーデータを取得
+        </button>
+
+        <button type="button" id="saveSettingsBtn">
+          設定を保存
+        </button>
+
+        <button type="button" id="clearTokenBtn">
+          保存トークンを消去
+        </button>
       </div>
-      <p class="status" id="loadStatus" aria-live="polite">ユーザーデータは未取得だよ。</p>
+
+      <p class="status" id="loadStatus" aria-live="polite">
+        ユーザーデータは未取得だよ。
+      </p>
+
+      <hr>
+
+      <h3>ユーザーデータ（.jsファイル）</h3>
+
+      <p class="description">
+        ChuniSupport APIと同じ形式のデータファイルを読み込めるよ。
+        読み込んだデータはこのブラウザに保存され、APIデータ・手動記録と一緒に計算されるよ。
+      </p>
+
+      <label for="dataFile">データファイル</label>
+
+      <input
+        id="dataFile"
+        type="file"
+        accept=".js,text/javascript,application/javascript"
+      >
+
+      <div class="button-row">
+        <button type="button" id="importBtn">
+          ファイルを読み込む
+        </button>
+
+        <button type="button" id="clearImportBtn">
+          読み込んだデータを消去
+        </button>
+      </div>
+
+      <p class="status" id="importStatus" aria-live="polite">
+        まだファイルを読み込んでいないよ。
+      </p>
     </section>
 
-    <section class="error-box" id="errorBox" hidden aria-live="polite">
+    <section
+      class="error-box"
+      id="errorBox"
+      hidden
+      aria-live="polite"
+    >
       <h2 id="errorTitle">取得エラー</h2>
+
       <p id="errorSummary"></p>
+
       <div class="button-row">
-        <button type="button" id="errorDetailsBtn">詳しく見る</button>
-        <button type="button" id="copyErrorBtn">エラー内容をコピー</button>
+        <button type="button" id="errorDetailsBtn">
+          詳しく見る
+        </button>
+
+        <button type="button" id="copyErrorBtn">
+          エラー内容をコピー
+        </button>
       </div>
+
       <div id="errorDetails" hidden>
         <pre id="errorRaw"></pre>
       </div>
     </section>
 
     <nav class="rating-tabs" aria-label="表示切り替え">
-      <button type="button" class="tab active" data-tab="rating">BEST・NEW</button>
-      <button type="button" class="tab" data-tab="input">スコア入力</button>
-      <button type="button" class="tab" data-tab="records">全スコア</button>
-      <button type="button" class="tab" data-tab="export">画像出力</button>
+      <button
+        type="button"
+        class="tab active"
+        data-tab="rating"
+      >
+        BEST・NEW
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        data-tab="input"
+      >
+        スコア入力
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        data-tab="records"
+      >
+        全スコア
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        data-tab="export"
+      >
+        画像出力
+      </button>
     </nav>
 
     <section class="panel active" id="panel-rating">
@@ -422,6 +532,7 @@
           <h2>BEST 30</h2>
           <span class="count" id="bestCount">0 / 30</span>
         </div>
+
         <div class="score-list" id="bestList">
           <p class="empty-note">まだ記録がないよ。</p>
         </div>
@@ -432,6 +543,7 @@
           <h2>NEW 20</h2>
           <span class="count" id="newCount">0 / 20</span>
         </div>
+
         <div class="score-list" id="newList">
           <p class="empty-note">まだ記録がないよ。</p>
         </div>
@@ -440,79 +552,98 @@
 
     <section class="panel" id="panel-input" hidden>
       <section class="card">
-  <h2>スコアを手動入力</h2>
+        <h2>スコアを手動入力</h2>
 
-  <label for="songSearch">楽曲検索</label>
-  <input
-    id="songSearch"
-    type="search"
-    placeholder="先に楽曲データを取得してね"
-    autocomplete="off"
-  >
-  <div class="search-results" id="searchResults" hidden></div>
+        <label for="songSearch">楽曲検索</label>
 
-  <p class="description" id="selectedSong">
-    楽曲が選択されていないよ。
-  </p>
+        <input
+          id="songSearch"
+          type="search"
+          placeholder="先に楽曲データを取得してね"
+          autocomplete="off"
+        >
 
-  <div class="form-grid">
-    <div>
-      <label for="difficulty">難易度</label>
-      <select id="difficulty">
-        <option value="">楽曲を選択してね</option>
-      </select>
-    </div>
+        <div
+          class="search-results"
+          id="searchResults"
+          hidden
+        ></div>
 
-    <div>
-      <label for="manualFrame">振り分け先</label>
-      <select id="manualFrame" required>
-        <option value="">選択してね</option>
-        <option value="best">BEST枠</option>
-        <option value="new">NEW枠</option>
-      </select>
-    </div>
+        <p class="description" id="selectedSong">
+          楽曲が選択されていないよ。
+        </p>
 
-    <div>
-      <label for="manualConst">譜面定数</label>
-      <input
-        id="manualConst"
-        type="number"
-        min="1"
-        max="20"
-        step="0.1"
-        placeholder="譜面定数"
-      >
-    </div>
+        <div class="form-grid">
+          <div>
+            <label for="difficulty">難易度</label>
 
-    <div>
-      <label for="manualScore">スコア</label>
-      <input
-        id="manualScore"
-        type="number"
-        min="0"
-        max="1010000"
-        step="1"
-        placeholder="例: 1000000"
-      >
-    </div>
+            <select id="difficulty">
+              <option value="">楽曲を選択してね</option>
+            </select>
+          </div>
 
-    <div>
-      <label for="manualDate">プレイ日（任意）</label>
-      <input id="manualDate" type="date">
-    </div>
-  </div>
+          <div>
+            <label for="manualFrame">振り分け先</label>
 
-  <div class="button-row">
-    <button type="button" id="addManualBtn">スコアを保存</button>
-    <button type="button" id="clearManualFormBtn">入力をクリア</button>
-  </div>
+            <select id="manualFrame" required>
+              <option value="">選択してね</option>
+              <option value="best">BEST枠</option>
+              <option value="new">NEW枠</option>
+            </select>
+          </div>
 
-  <p class="status" id="manualStatus" aria-live="polite"></p>
-</section>
+          <div>
+            <label for="manualConst">譜面定数</label>
+
+            <input
+              id="manualConst"
+              type="number"
+              min="1"
+              max="20"
+              step="0.1"
+              placeholder="譜面定数"
+            >
+          </div>
+
+          <div>
+            <label for="manualScore">スコア</label>
+
+            <input
+              id="manualScore"
+              type="number"
+              min="0"
+              max="1010000"
+              step="1"
+              placeholder="例: 1000000"
+            >
+          </div>
+
+          <div>
+            <label for="manualDate">プレイ日（任意）</label>
+            <input id="manualDate" type="date">
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="button" id="addManualBtn">
+            スコアを保存
+          </button>
+
+          <button type="button" id="clearManualFormBtn">
+            入力をクリア
+          </button>
+        </div>
+
+        <p class="status" id="manualStatus" aria-live="polite"></p>
+      </section>
 
       <section class="card">
         <h2>手動入力した記録</h2>
-        <p class="description">削除するとBEST・NEWの計算対象からも外れるよ。</p>
+
+        <p class="description">
+          削除するとBEST・NEWの計算対象からも外れるよ。
+        </p>
+
         <div id="manualList"></div>
       </section>
     </section>
@@ -520,8 +651,15 @@
     <section class="panel" id="panel-records" hidden>
       <section class="card">
         <h2>全スコア</h2>
+
         <label for="recordSearch">曲名で検索</label>
-        <input id="recordSearch" type="search" placeholder="曲名を入力">
+
+        <input
+          id="recordSearch"
+          type="search"
+          placeholder="曲名を入力"
+        >
+
         <div id="allRecords" style="margin-top: 12px;"></div>
       </section>
     </section>
@@ -529,10 +667,17 @@
     <section class="panel" id="panel-export" hidden>
       <section class="card">
         <h2>画像出力</h2>
-        <p class="description">BEST 30・NEW 20の一覧をPNG画像にするよ。</p>
+
+        <p class="description">
+          BEST 30・NEW 20の一覧をPNG画像にするよ。
+        </p>
+
         <div class="button-row">
-          <button type="button" id="exportImageBtn">PNG画像を作成</button>
+          <button type="button" id="exportImageBtn">
+            PNG画像を作成
+          </button>
         </div>
+
         <p class="status" id="exportStatus" aria-live="polite"></p>
       </section>
     </section>

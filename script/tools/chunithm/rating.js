@@ -1,3 +1,4 @@
+
 "use strict";
 
 (() => {
@@ -7,24 +8,17 @@
 
   const SETTINGS_KEY = "chunisupport_rating_settings_v1";
   const MANUAL_KEY = "chunisupport_rating_manual_v1";
+  const IMPORT_KEY = "chunisupport_rating_import_v1";
 
-  const DIFFS = [
-    "BASIC",
-    "ADVANCED",
-    "EXPERT",
-    "MASTER",
-    "ULTIMA"
-  ];
-
+  const DIFFS = ["BASIC", "ADVANCED", "EXPERT", "MASTER", "ULTIMA"];
   const $ = id => document.getElementById(id);
 
   let settings = readStorage(SETTINGS_KEY, {});
   let songs = [];
   let songsById = new Map();
-
   let playerData = null;
+  let importedData = readStorage(IMPORT_KEY, null);
   let manualRecords = readStorage(MANUAL_KEY, []);
-
   let selectedSong = null;
   let lastErrorText = "";
 
@@ -47,7 +41,6 @@
 
   // -------------------------
   // レート計算
-  // single-track.js と同じ計算式
   // 小数第3位以下を切り捨て
   // -------------------------
 
@@ -114,9 +107,7 @@
     img.height = 46;
     img.loading = "lazy";
 
-    if (id) {
-      img.src = jacketUrl(id);
-    }
+    if (id) img.src = jacketUrl(id);
 
     img.onerror = () => {
       img.onerror = null;
@@ -245,7 +236,6 @@
       error.code = data?.code || data?.error_code;
       error.url = url;
       error.body = body;
-
       throw error;
     }
 
@@ -298,14 +288,11 @@
         " 曲を読み込んだよ。";
 
       $("songSearch").placeholder = "曲名を入力して検索";
-
       renderAll();
 
     } catch (error) {
       showError(error);
-
-      $("songsStatus").textContent =
-        "楽曲データの取得に失敗したよ。";
+      $("songsStatus").textContent = "楽曲データの取得に失敗したよ。";
     } finally {
       $("loadSongsBtn").disabled = false;
     }
@@ -346,7 +333,6 @@
       }
 
       playerData = result;
-
       saveSettings();
       renderAll();
 
@@ -356,7 +342,6 @@
 
     } catch (error) {
       showError(error);
-
       $("loadStatus").textContent =
         "ユーザーデータの取得に失敗したよ。手動記録はそのまま残っているよ。";
     } finally {
@@ -365,12 +350,155 @@
   }
 
   // -------------------------
+  // .jsファイルの読み込み
+  // -------------------------
+
+  function parseImportedFile(source) {
+    const text = String(source).replace(/^\uFEFF/, "").trim();
+
+    const match = text.match(
+      /^(?:window|globalThis)\.CHUNITHM_DATA\s*=\s*(\{[\s\S]*\})\s*;?$/
+    );
+
+    if (!match) {
+      throw new Error(
+        "window.CHUNITHM_DATA = { ... }; の形式ではないよ。"
+      );
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(match[1]);
+    } catch (error) {
+      throw new Error(
+        "データ部分をJSONとして読み取れなかったよ: " + error.message
+      );
+    }
+
+    if (
+      !data ||
+      typeof data !== "object" ||
+      !data.player ||
+      typeof data.player !== "object" ||
+      !data.records ||
+      typeof data.records !== "object"
+    ) {
+      throw new Error("player または records が見つからないよ。");
+    }
+
+    const records = data.records;
+
+    if (
+      !Array.isArray(records.standard) &&
+      (!Array.isArray(records.best) || !Array.isArray(records.new))
+    ) {
+      throw new Error(
+        "records.standard または records.best / records.new が必要だよ。"
+      );
+    }
+
+    const list = Array.isArray(records.standard)
+      ? records.standard
+      : [...records.best, ...records.new];
+
+    if (!list.length) {
+      throw new Error("読み込めるスコアが1件もないよ。");
+    }
+
+    list.forEach((record, index) => {
+      const number = index + 1;
+
+      if (!record || typeof record !== "object") {
+        throw new Error(number + "件目の記録が正しくないよ。");
+      }
+
+      if (record.id == null || String(record.id) === "") {
+        throw new Error(number + "件目に楽曲IDがないよ。");
+      }
+
+      const difficulty = String(record.difficulty || "").toUpperCase();
+      if (!DIFFS.includes(difficulty)) {
+        throw new Error(number + "件目の難易度が正しくないよ。");
+      }
+
+      const constant = Number(record.const);
+      if (!Number.isFinite(constant) || constant < 1 || constant > 20) {
+        throw new Error(number + "件目の譜面定数が正しくないよ。");
+      }
+
+      const score = Number(record.score);
+      if (!Number.isInteger(score) || score < 0 || score > 1010000) {
+        throw new Error(number + "件目のスコアが正しくないよ。");
+      }
+    });
+
+    return data;
+  }
+
+  async function importDataFile() {
+    const file = $("dataFile").files?.[0];
+
+    if (!file) {
+      $("importStatus").textContent = "先に .js ファイルを選択してね。";
+      return;
+    }
+
+    $("importBtn").disabled = true;
+    $("importStatus").textContent = "ファイルを読み込み中…";
+    clearError();
+
+    try {
+      if (!file.name.toLowerCase().endsWith(".js")) {
+        throw new Error(".js ファイルを選択してね。");
+      }
+
+      const source = await file.text();
+      const data = parseImportedFile(source);
+
+      // JavaScriptとして実行せず、JSONデータとして読み取る。
+      importedData = data;
+      writeStorage(IMPORT_KEY, importedData);
+
+      const count = Array.isArray(data.records.standard)
+        ? data.records.standard.filter(record => record.is_played !== false).length
+        : data.records.best.length + data.records.new.length;
+
+      $("importStatus").textContent =
+        file.name + " を読み込んだよ（" + count + "件）。";
+
+      renderAll();
+
+    } catch (error) {
+      error.kind = "import";
+      error.url = file.name;
+      error.body = error.stack || "";
+      showError(error);
+
+      $("importStatus").textContent =
+        "ファイルの読み込みに失敗したよ。";
+    } finally {
+      $("importBtn").disabled = false;
+      $("dataFile").value = "";
+    }
+  }
+
+  function clearImportedData() {
+    importedData = null;
+    localStorage.removeItem(IMPORT_KEY);
+
+    $("importStatus").textContent =
+      "読み込んだファイルデータを消去したよ。";
+
+    renderAll();
+  }
+
+  // -------------------------
   // 記録データの整形
   // -------------------------
 
-  function normalizeApiRecord(record, isNew) {
+  function normalizeApiRecord(record, isNew, imported = false) {
     const song = songsById.get(String(record.id));
-
     const constant = Number(record.const);
     const score = Number(record.score);
 
@@ -378,12 +506,13 @@
       id: String(record.id),
       title: record.title || song?.title || "曲名不明",
       artist: record.artist || song?.artist || "",
-      difficulty: record.difficulty,
+      difficulty: String(record.difficulty).toUpperCase(),
       const: constant,
       score,
       rating: calcRate(constant, score),
       img: record.img || song?.jacket || "",
       isNew: Boolean(isNew),
+      imported,
       manual: false
     };
   }
@@ -400,51 +529,54 @@
         ? record.isNew
         : Boolean(song?.is_new),
       rating: calcRate(Number(record.const), Number(record.score)),
-      manual: true
+      manual: true,
+      imported: false
     };
   }
 
-  function getApiRecords() {
-    if (!playerData?.records) return [];
+  function getRecordsFromData(data, imported = false) {
+    if (!data?.records) return [];
 
-    const records = playerData.records;
+    const records = data.records;
     const result = [];
 
     if (Array.isArray(records.standard)) {
       records.standard
-        .filter(record => record.is_played)
+        .filter(record => record.is_played !== false)
         .forEach(record => {
           const song = songsById.get(String(record.id));
+          const isNew = song
+            ? Boolean(song.is_new)
+            : Boolean(record.is_new);
 
           result.push(
-            normalizeApiRecord(
-              record,
-              song ? Boolean(song.is_new) : false
-            )
+            normalizeApiRecord(record, isNew, imported)
           );
         });
 
       return result;
     }
 
-    // standard がない場合は BEST / NEW を利用
-    (records.best || [])
-      .filter(record => record.is_played)
-      .forEach(record => {
-        result.push(normalizeApiRecord(record, false));
-      });
+    (records.best || []).forEach(record => {
+      result.push(normalizeApiRecord(record, false, imported));
+    });
 
-    (records.new || [])
-      .filter(record => record.is_played)
-      .forEach(record => {
-        result.push(normalizeApiRecord(record, true));
-      });
+    (records.new || []).forEach(record => {
+      result.push(normalizeApiRecord(record, true, imported));
+    });
 
     return result;
   }
 
+  function getApiRecords() {
+    return [
+      ...getRecordsFromData(playerData, false),
+      ...getRecordsFromData(importedData, true)
+    ];
+  }
+
   // -------------------------
-  // 手動記録とAPI記録を統合
+  // API・ファイル・手動記録を統合
   // -------------------------
 
   function getMergedRecords() {
@@ -454,13 +586,7 @@
       const key = record.id + "|" + record.difficulty;
       const current = merged.get(key);
 
-      if (!current) {
-        merged.set(key, record);
-        return;
-      }
-
-      // スコアが高い方を採用
-      if (record.score > current.score) {
+      if (!current || record.score > current.score) {
         merged.set(key, record);
         return;
       }
@@ -475,10 +601,8 @@
       }
     }
 
-    // API記録を先に追加
     getApiRecords().forEach(addRecord);
 
-    // 手動記録も追加して比較
     manualRecords
       .map(normalizeManualRecord)
       .forEach(addRecord);
@@ -487,7 +611,7 @@
   }
 
   // -------------------------
-  // BEST / NEW の計算
+  // BEST / NEW
   // -------------------------
 
   function getFrameRecords() {
@@ -511,8 +635,6 @@
   // -------------------------
 
   function renderProfile() {
-    // BEST30 + NEW20 の合計50枠で計算する。
-    // 記録が存在しない枠は加算値0として扱う。
     const frames = getFrameRecords();
 
     const total = [
@@ -522,11 +644,15 @@
 
     $("playerRating").textContent = (total / 50).toFixed(2);
 
-    if (playerData?.player) {
-      const player = playerData.player;
+    const profileData = playerData?.player
+      ? playerData
+      : importedData;
+
+    if (profileData?.player) {
+      const player = profileData.player;
 
       $("playerName").textContent =
-        player.name || playerData.username || "不明";
+        player.name || profileData.username || "不明";
 
       $("playerLevel").textContent = player.level ?? "--";
 
@@ -543,8 +669,14 @@
   }
 
   // -------------------------
-  // 記録一覧表示
+  // 記録一覧
   // -------------------------
+
+  function recordSourceText(record) {
+    if (record.manual) return "手動入力";
+    if (record.imported) return "ファイル読込";
+    return "ChuniSupport";
+  }
 
   function renderSongList(targetId, records) {
     const target = $(targetId);
@@ -560,9 +692,7 @@
 
     records.forEach((record, index) => {
       const row = document.createElement("div");
-
-      const jacket = makeJacket(record.img, record.title);
-      row.append(jacket);
+      row.append(makeJacket(record.img, record.title));
 
       const info = document.createElement("div");
 
@@ -574,7 +704,7 @@
       meta.textContent =
         record.difficulty +
         " / 定数 " + record.const +
-        (record.manual ? " / 手動入力" : " / ChuniSupport");
+        " / " + recordSourceText(record);
 
       info.append(title, meta);
 
@@ -612,7 +742,6 @@
 
     manualRecords.forEach((record, index) => {
       const row = document.createElement("div");
-
       row.append(makeJacket(record.img, record.title));
 
       const info = document.createElement("div");
@@ -668,7 +797,6 @@
 
     list.forEach(record => {
       const row = document.createElement("div");
-
       row.append(makeJacket(record.img, record.title));
 
       const info = document.createElement("div");
@@ -681,7 +809,7 @@
       meta.textContent =
         record.difficulty +
         " / 定数 " + record.const +
-        (record.manual ? " / 手動入力" : " / ChuniSupport");
+        " / " + recordSourceText(record);
 
       info.append(title, meta);
 
@@ -741,9 +869,7 @@
     if (!selectedSong) return;
 
     const chart = selectedSong.charts?.[$("difficulty").value];
-
-    $("manualConst").value =
-      chart?.const ?? "";
+    $("manualConst").value = chart?.const ?? "";
   }
 
   function setupSearch() {
@@ -862,10 +988,9 @@
     writeStorage(MANUAL_KEY, manualRecords);
 
     $("manualStatus").textContent =
-      "保存したよ。API記録と比較して高いスコアが採用されるよ。";
+      "保存したよ。API・ファイルの記録と比較して高いスコアが採用されるよ。";
 
     $("manualScore").value = "";
-
     renderAll();
   }
 
@@ -896,8 +1021,7 @@
     }
 
     $("exportImageBtn").disabled = true;
-    $("exportStatus").textContent =
-      "画像を作成中…";
+    $("exportStatus").textContent = "画像を作成中…";
 
     try {
       const canvas = document.createElement("canvas");
@@ -919,10 +1043,14 @@
       ctx.font = "bold 46px sans-serif";
       ctx.fillText("CHUNITHM RATING", margin, 72);
 
+      const profileData = playerData?.player
+        ? playerData
+        : importedData;
+
       ctx.font = "24px sans-serif";
       ctx.fillText(
-        playerData?.player?.name ||
-        playerData?.username ||
+        profileData?.player?.name ||
+        profileData?.username ||
         "手動入力",
         margin,
         116
@@ -947,9 +1075,7 @@
         ctx.fillText(label, x + 18, top + 34);
 
         const images = await Promise.all(
-          records.map(record =>
-            loadImageForCanvas(record.img)
-          )
+          records.map(record => loadImageForCanvas(record.img))
         );
 
         records.forEach((record, index) => {
@@ -1000,7 +1126,6 @@
           ctx.font = "bold 16px sans-serif";
 
           let title = String(record.title || "");
-
           if (title.length > 25) {
             title = title.slice(0, 24) + "…";
           }
@@ -1084,6 +1209,9 @@
     $("loadBtn").addEventListener("click", loadData);
     $("saveSettingsBtn").addEventListener("click", saveSettings);
 
+    $("importBtn").addEventListener("click", importDataFile);
+    $("clearImportBtn").addEventListener("click", clearImportedData);
+
     $("clearTokenBtn").addEventListener("click", () => {
       $("token").value = "";
       settings.token = "";
@@ -1111,12 +1239,10 @@
     });
 
     $("recordSearch").addEventListener("input", renderAllRecords);
-
     $("exportImageBtn").addEventListener("click", exportPoster);
 
     $("errorDetailsBtn").addEventListener("click", () => {
       const details = $("errorDetails");
-
       details.hidden = !details.hidden;
 
       $("errorDetailsBtn").textContent =
@@ -1147,6 +1273,11 @@
         });
       });
     });
+
+    if (importedData) {
+      $("importStatus").textContent =
+        "以前読み込んだファイルデータを使用中だよ。";
+    }
 
     renderAll();
   }
