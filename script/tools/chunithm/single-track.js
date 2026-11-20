@@ -1,4 +1,3 @@
-
 (() => {
     const form = document.getElementById("calculator");
     const constantInput = document.getElementById("constant");
@@ -35,10 +34,13 @@
         return Number.isInteger(c * 10);
     }
 
-    // レート計算
+    // レート計算（小数第3位以下を切り捨て）
     function calculate(constant, score) {
         if (score <= 500000) return 0;
-        if (score >= 1009000) return constant + 2.15;
+
+        if (score >= 1009000) {
+            return Math.floor((constant + 2.15) * 100) / 100;
+        }
 
         for (let i = 1; i < borders.length; i++) {
             const lower = borders[i - 1];
@@ -52,14 +54,16 @@
                 const lowValue = Math.max(0, lower.value(constant));
                 const highValue = Math.max(0, upper.value(constant));
 
-                return Math.max(
+                const rating = Math.max(
                     0,
                     lowValue + (highValue - lowValue) * ratio
                 );
+
+                return Math.floor(rating * 100) / 100;
             }
         }
 
-        return constant + 2.15;
+        return Math.floor((constant + 2.15) * 100) / 100;
     }
 
     // ランク判定
