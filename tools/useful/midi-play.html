@@ -16,41 +16,199 @@
 
 <!-- ピアノロール用CSS -->
 <style>
+/* MIDIプレイヤー全体 */
+.midi-player {
+    width: 100%;
+    max-width: 87.5rem;
+    min-width: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* ファイル選択 */
+.midi-upload {
+    display: block;
+    width: 100%;
+    padding: clamp(1rem, 4vw, 2rem);
+    box-sizing: border-box;
+    border: 2px dashed var(--link);
+    border-radius: .75rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.midi-upload input {
+    display: none;
+}
+
+/* ボタン */
+.midi-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .625rem;
+    margin-top: 1rem;
+}
+
+.midi-buttons button,
+.midi-buttons a {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* シークバー */
+.midi-seek {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    min-width: 0;
+    margin-top: 1rem;
+}
+
+.midi-seek input {
+    width: 100%;
+    min-width: 0;
+}
+
+/* ズーム・速度 */
+.midi-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin: 1rem 0;
+}
+
+.midi-toolbar label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    min-width: 0;
+}
+
+.midi-toolbar input {
+    max-width: 100%;
+}
+
+/* ピアノロール */
 #midi-roll-container {
     position: relative;
     display: flex;
     align-items: flex-start;
     width: 100%;
-    height: auto;
-    overflow-x: auto;
-    overflow-y: hidden;
+    height: clamp(18rem, 65vh, 45rem);
+    min-height: 18rem;
+    max-height: 45rem;
+    box-sizing: border-box;
+
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    background: var(--card);
     isolation: isolate;
 }
 
+/* 左側の鍵盤 */
 #midi-piano-keys {
     position: sticky;
+    top: 0;
     left: 0;
+    align-self: flex-start;
     flex: 0 0 80px;
+
     width: 80px;
     max-width: none;
     height: 1280px;
+
     z-index: 3;
     display: block;
     background: #333;
 }
 
+/* ノート表示領域 */
 #midi-roll-track {
     position: relative;
     flex: 0 0 auto;
+
     width: 2000px;
     height: 1280px;
 }
 
+/* ノート */
 #midi-piano-roll {
+    position: absolute;
+    top: 0;
+    left: 80px;
+
+    z-index: 1;
     display: block;
+
     max-width: none;
     width: 2000px;
     height: 1280px;
+}
+
+/* MIDI情報テーブル */
+.midi-info {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
+}
+
+/* 狭い画面 */
+@media (max-width: 48rem) {
+    .midi-buttons {
+        gap: .5rem;
+    }
+
+    .midi-buttons button,
+    .midi-buttons a {
+        flex: 1 1 auto;
+    }
+
+    .midi-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .75rem;
+    }
+
+    .midi-toolbar label {
+        justify-content: space-between;
+    }
+
+    .midi-toolbar input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    #midi-roll-container {
+        height: 55vh;
+        min-height: 16rem;
+    }
+}
+
+/* さらに狭い画面 */
+@media (max-width: 25rem) {
+    .midi-seek {
+        gap: .35rem;
+        font-size: .85rem;
+    }
+
+    .midi-upload {
+        padding: 1rem;
+    }
+
+    #midi-roll-container {
+        height: 50vh;
+        min-height: 14rem;
+    }
 }
 </style>
 
