@@ -16,6 +16,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/blocked-page.html"
+  to = "/blocked-page.html"
+  status = 200
+  force = true
+
  # 合言葉ページだすやつ
 [[redirects]]
   from = "/admin.html"
@@ -32,8 +38,8 @@
   conditions = {Cookie = ["admin_mode"]}
 
 # 503かえすやつ
-# [[redirects]]
-#   from = "/*"
-#   to = "/maintenance.html"
-#   status = 503
-#   force = true
+[[redirects]]
+  from = "/*"
+  to = "/maintenance.html"
+  status = 503
+  force = true
