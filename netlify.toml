@@ -32,8 +32,8 @@
   conditions = {Cookie = ["admin_mode"]}
 
 # 503かえすやつ
-[[redirects]]
-  from = "/*"
-  to = "/maintenance.html"
-  status = 503
-  force = true
+# [[redirects]]
+#   from = "/*"
+#   to = "/maintenance.html"
+#   status = 503
+#   force = true
