@@ -1,4 +1,3 @@
-
 "use strict";
 
 // ========================================
@@ -29,7 +28,6 @@ const canvasRoll = document.getElementById("midi-piano-roll");
 const canvasKeys = document.getElementById("midi-piano-keys");
 const rollContainer = document.getElementById("midi-roll-container");
 const rollTrack = document.getElementById("midi-roll-track");
-const playhead = document.getElementById("midi-playhead");
 
 const convertBtn = document.getElementById("midi-convert");
 const downloadBtn = document.getElementById("midi-download");
@@ -51,6 +49,9 @@ const CHANNEL_COLORS = [
 ];
 
 const WHITE_KEYS = [0, 2, 4, 5, 7, 9, 11];
+
+const PITCH_MIN = 0;
+const PITCH_MAX = 127;
 
 // ========================================
 // データ
@@ -79,9 +80,6 @@ let mp3Url = null;
 let tempoEvents = [];
 let timeSignatureEvents = [];
 
-const PITCH_MIN = 0;
-const PITCH_MAX = 127;
-
 // ========================================
 // 初期化
 // ========================================
@@ -95,8 +93,7 @@ if (
     !canvasRoll ||
     !canvasKeys ||
     !rollContainer ||
-    !rollTrack ||
-    !playhead
+    !rollTrack
 ) {
     throw new Error("MIDI Player: 必要なHTML要素が見つからない");
 }
@@ -230,8 +227,6 @@ function updateUI(time) {
     seekBar.value = duration > 0
         ? (currentTime / duration) * 100
         : 0;
-
-    updatePlayhead();
 }
 
 function updateButtons() {
@@ -239,20 +234,6 @@ function updateButtons() {
     pauseBtn.disabled = !isPlaying;
     stopBtn.disabled = !isLoaded;
     convertBtn.disabled = !isLoaded;
-}
-
-// ========================================
-// 再生位置の赤い線
-// ========================================
-
-function updatePlayhead() {
-    if (!isLoaded) {
-        playhead.style.display = "none";
-        return;
-    }
-
-    playhead.style.left = `${timeToX(currentTime)}px`;
-    playhead.style.display = "block";
 }
 
 // ========================================
@@ -479,13 +460,15 @@ async function play() {
         isPlaying = true;
         isStarting = false;
 
+        // MIDIのノート時刻に合わせて音を予約する。
+        // ロールも同じMIDI時刻で鍵盤位置まで移動するため、
+        // ノートが鍵盤に到達する瞬間に音が鳴る。
         notes.forEach(note => {
             const noteEnd = note.time + note.duration;
 
             if (noteEnd <= offset) return;
 
             const noteStart = Math.max(note.time, offset);
-
             const delay = (noteStart - offset) / speed;
             const noteDuration = (noteEnd - noteStart) / speed;
 
@@ -564,10 +547,6 @@ function stop() {
     updateButtons();
 
     rollContainer.scrollLeft = 0;
-
-    if (!isLoaded) {
-        playhead.style.display = "none";
-    }
 }
 
 // ========================================
@@ -587,15 +566,17 @@ function updatePlaybackUI(generation) {
 
     updateUI(currentTime);
 
-    // 再生位置に合わせて横スクロール
-    const viewX = timeToX(currentTime);
-
+    // ノートが左側の鍵盤に到達するようにスクロールする。
+    // 鍵盤はposition: stickyで固定される。
+    // rollTrackは鍵盤の右隣から始まるため、
+    // scrollLeftをtimeToX(currentTime)にすると
+    // 現在時刻のノートが鍵盤の右端に到達する。
     rollContainer.scrollLeft = Math.max(
         0,
-        viewX - rollContainer.clientWidth * 0.3
+        timeToX(currentTime)
     );
 
-    // 鍵盤の発光を更新
+    // 到達中のノートに合わせて鍵盤を発光
     drawKeys();
 
     rafId = requestAnimationFrame(() => {
@@ -628,6 +609,12 @@ seekBar.addEventListener("input", () => {
     updateUI(position);
     drawKeys();
 
+    // シーク位置までロールを移動
+    rollContainer.scrollLeft = Math.max(
+        0,
+        timeToX(position)
+    );
+
     if (wasPlaying) play();
 });
 
@@ -651,45 +638,42 @@ function getPitchRange() {
 }
 
 // ========================================
-// 拍子イベントを使った小節線の計算
+// 小節線の計算
 // ========================================
 
 function getMeasureLines() {
     const lines = [];
 
     let currentBeat = 0;
-    let previousTime = 0;
-
     let numerator = 4;
     let denominator = 4;
 
     for (let i = 0; i < timeSignatureEvents.length; i++) {
         const event = timeSignatureEvents[i];
-
         const eventBeat = secondsToBeats(event.time);
 
         const beatLength = 4 / denominator;
         const barLength = numerator * beatLength;
 
-        // 拍子変更位置までの小節線
         let beat = currentBeat;
 
-        while (beat <= eventBeat + 0.0001) {
-            if (beat >= currentBeat - 0.0001) {
-                lines.push({
-                    beat,
-                    bar: true
-                });
-            }
+        while (beat < eventBeat - 0.0001) {
+            lines.push({
+                beat,
+                bar: true
+            });
 
             beat += barLength;
         }
 
         currentBeat = eventBeat;
-        previousTime = event.time;
-
         numerator = event.numerator;
         denominator = event.denominator;
+
+        lines.push({
+            beat: currentBeat,
+            bar: true
+        });
     }
 
     const beatLength = 4 / denominator;
@@ -707,6 +691,49 @@ function getMeasureLines() {
     }
 
     return lines;
+}
+
+// ========================================
+// 拍の区切り線
+// ========================================
+
+function getBeatLines() {
+    const lines = [];
+
+    let currentBeat = 0;
+    let denominator = 4;
+
+    for (let i = 0; i < timeSignatureEvents.length; i++) {
+        const event = timeSignatureEvents[i];
+        const eventBeat = secondsToBeats(event.time);
+
+        const beatLength = 4 / denominator;
+
+        let beat = currentBeat;
+
+        while (beat < eventBeat - 0.0001) {
+            lines.push(beat);
+            beat += beatLength;
+        }
+
+        currentBeat = eventBeat;
+        denominator = event.denominator;
+    }
+
+    const beatLength = 4 / denominator;
+    const totalBeats = secondsToBeats(duration);
+
+    for (
+        let beat = currentBeat;
+        beat <= totalBeats + 0.0001;
+        beat += beatLength
+    ) {
+        lines.push(beat);
+    }
+
+    return [...new Set(lines.map(value => value.toFixed(5)))]
+        .map(Number)
+        .sort((a, b) => a - b);
 }
 
 // ========================================
@@ -742,14 +769,11 @@ function drawRoll() {
     rollTrack.style.width = `${width}px`;
     rollTrack.style.height = `${height}px`;
 
-    playhead.style.height = `${height}px`;
-
     ctxRoll.clearRect(0, 0, width, height);
 
     // 鍵盤ごとの背景
     for (let midi = range.min; midi <= range.max; midi++) {
         const y = (range.max - midi) * NOTE_HEIGHT;
-
         const isBlack = !WHITE_KEYS.includes(midi % 12);
 
         ctxRoll.fillStyle = isBlack
@@ -767,22 +791,13 @@ function drawRoll() {
         ctxRoll.stroke();
     }
 
-    // 拍の線
+    // 拍の区切り線
     const totalBeats = secondsToBeats(duration);
-    const signature = timeSignatureEvents[0] || {
-        numerator: 4,
-        denominator: 4
-    };
-
-    const beatLength = 4 / signature.denominator;
+    const beatLines = getBeatLines();
 
     ctxRoll.font = "11px sans-serif";
 
-    for (
-        let beat = 0;
-        beat <= totalBeats + 0.001;
-        beat += beatLength
-    ) {
+    beatLines.forEach(beat => {
         const x = beat * PIXELS_PER_BEAT * zoom;
 
         ctxRoll.strokeStyle = "rgba(128,128,128,0.28)";
@@ -792,7 +807,7 @@ function drawRoll() {
         ctxRoll.moveTo(x, 0);
         ctxRoll.lineTo(x, height);
         ctxRoll.stroke();
-    }
+    });
 
     // 小節の線を濃く描画
     const measureLines = getMeasureLines();
@@ -815,7 +830,7 @@ function drawRoll() {
 
         const w = Math.max(
             2,
-            (timeToX(note.time + note.duration) - x)
+            timeToX(note.time + note.duration) - x
         );
 
         const y = (range.max - note.midi) * NOTE_HEIGHT;
@@ -856,8 +871,6 @@ function drawRoll() {
 
         ctxRoll.fillText(formatTime(sec), x + 3, 12);
     }
-
-    updatePlayhead();
 }
 
 // ========================================
@@ -882,7 +895,6 @@ function drawKeys() {
 
     for (let midi = range.min; midi <= range.max; midi++) {
         const y = (range.max - midi) * NOTE_HEIGHT;
-
         const isBlack = !WHITE_KEYS.includes(midi % 12);
 
         const activeChannels = [
@@ -900,7 +912,14 @@ function drawKeys() {
         // 発音中のチャンネルカラー
         if (activeChannels.length === 1) {
             ctxKeys.fillStyle = getChannelColor(activeChannels[0]);
-            ctxKeys.fillRect(0, y, KEY_WIDTH, NOTE_HEIGHT);
+
+            ctxKeys.fillRect(
+                0,
+                y,
+                KEY_WIDTH,
+                NOTE_HEIGHT
+            );
+
         } else if (activeChannels.length > 1) {
             const segmentWidth = KEY_WIDTH / activeChannels.length;
 
@@ -943,13 +962,14 @@ function drawKeys() {
 // ========================================
 
 zoomEl.addEventListener("input", () => {
-    const oldX = timeToX(currentTime);
+    const oldPosition = currentTime;
 
     drawRoll();
 
+    // 再生中は現在位置のノートが鍵盤に到達する位置に合わせる
     rollContainer.scrollLeft = Math.max(
         0,
-        oldX - rollContainer.clientWidth * 0.3
+        timeToX(oldPosition)
     );
 });
 
