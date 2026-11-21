@@ -1,7 +1,7 @@
 
 const SITE_NAME = "透明なセカイ";
 const DEFAULT_DESCRIPTION = "ここにはなんもないかもだし、あるかも\nこのサイトを見てみればわかる…のかな";
-const OG_IMAGE = "https://yuyuyu-homepage.netlify.app/og-image.png";
+const OG_IMAGE = "https://shiratama-kotone-homepage.netlify.app/og-image.png";
 
 function escapeAttr(value: string) {
   return value.replaceAll("&", "&amp;")
