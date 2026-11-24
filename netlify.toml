@@ -17,6 +17,12 @@
   force = true
 
 [[redirects]]
+  from = "/og-image.png"
+  to = "/og-image.png"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/blocked-page.html"
   to = "/blocked-page.html"
   status = 200
