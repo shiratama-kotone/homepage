@@ -15,7 +15,8 @@ const EXCLUDED = [
   "wiki/template/accordion.html",
   "wiki/template/infobox.html",
   "wiki/template/sexual.html",
-  "wiki/template/template.html"
+  "wiki/template/template.html",
+  "google30e02b3b38cb5a35.html"
 ];
 
 function getHtmlFiles(dir) {
