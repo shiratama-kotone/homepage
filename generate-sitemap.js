@@ -7,7 +7,15 @@ const ROOT_DIR = __dirname;
 const OUTPUT = path.join(ROOT_DIR, "sitemap.xml");
 
 const EXCLUDED = [
-  "404.html"
+  "404.html",
+  "500.html",
+  "admin.html",
+  "maintenance.html",
+  "template.html",
+  "wiki/template/accordion.html",
+  "wiki/template/infobox.html",
+  "wiki/template/sexual.html",
+  "wiki/template/template.html"
 ];
 
 function getHtmlFiles(dir) {
@@ -33,17 +41,21 @@ function getHtmlFiles(dir) {
 
 const files = getHtmlFiles(ROOT_DIR);
 
-const urls = files.map(file => {
-  const relative = path.relative(ROOT_DIR, file)
-    .split(path.sep)
-    .join("/");
+const urls = files
+  .map(file => {
+    const relative = path.relative(ROOT_DIR, file)
+      .split(path.sep)
+      .join("/");
 
-  const url = relative === "index.html"
-    ? `${BASE_URL}/`
-    : `${BASE_URL}/${relative}`;
+    if (EXCLUDED.includes(relative.toLowerCase())) return null;
 
-  return `  <url>\n    <loc>${url}</loc>\n  </url>`;
-});
+    const url = relative === "index.html"
+      ? `${BASE_URL}/`
+      : `${BASE_URL}/${relative}`;
+
+    return `  <url>\n    <loc>${url}</loc>\n  </url>`;
+  })
+  .filter(Boolean);
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
